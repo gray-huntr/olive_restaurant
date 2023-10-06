@@ -3,6 +3,7 @@ import pymysql
 from app import app
 from flask import render_template, request, flash,redirect, session, url_for
 from uuid import uuid4
+import pydataman as pd
 app.secret_key = app.config['SECRET_KEY']
 
 @app.route("/")
@@ -39,6 +40,8 @@ def inhouse():
                         cursor.execute("insert into table_assignments(assignee_id, first_name, last_name, device_uid, "
                                        "table_id) values (%s,%s,%s,%s,%s)", (employee_id, fname, lname, duid, table_num))
                         cursor.execute("update device set status = 'assigned' where uid = %s", duid)
+                        session['duid'] = duid
+                        session['table'] = table_num
                         conn.commit()
                         return render_template("clients/inhouse.html")
                 else:
@@ -232,3 +235,62 @@ def delete_product(code):
 
     except Exception as e:
         print(e)
+# Create a unique order code
+def receiptcode():
+    # i = 1000
+    # pd.save('code', i)
+    var = pd.read('code')
+    while var < 10000000:
+        new = var + 1
+        pd.save('code', new)
+        var2 = "J" + str(pd.read('code')) + "V"
+        return f"{var2}"
+    else:
+        flash("Order codes deplited")
+
+# Place inhouse orders in database
+@app.route('/order', methods=['POST', 'GET'])
+def order( ):
+    # if 'username' in session:
+        if 'cart_item' in session:
+            all_total_price = 0
+            all_total_quantity = 0
+            for key, value in session['cart_item'].items():
+                individual_quantity = 1
+                individual_total_price = session['cart_item'][key]['total_price']
+                ordercode = receiptcode()
+                name = session['cart_item'][key]['product_name']
+                device_no = session['duid']
+                table_no = session['table']
+                cost = session['cart_item'][key]['product_cost']
+                qtty = session['cart_item'][key]['quantity']
+                total =session['cart_item'][key]['total_price']
+
+                all_total_quantity = all_total_quantity + individual_quantity
+                all_total_price = all_total_price + individual_total_price
+
+
+                # session
+                if not device_no or not table_no:
+                    return redirect('/order_type')
+                elif not individual_total_price or not individual_quantity or not name or not all_total_price or not all_total_quantity:
+                    return redirect('/cart')
+                else:
+                    # we first connect to local host and game_store database
+                    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                                           password=app.config["DB_PASSWORD"],
+                                           database=app.config["DB_NAME"])
+                    #     insert the records to the in-house orders tables
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "insert into inhouse_orders(order_id,name,device_uid,table_number,cost,quantity,total) "
+                        "values('{}','{}','{}','{}','{}','{}','{}')".format(
+                            ordercode, name,device_no,table_no, cost, qtty, total))
+                    conn.commit()
+            session.pop('cart_item', None)
+            session.pop('all_total_quantity', None)
+            session.pop('all_total_price', None)
+            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+    # else:
+    #     session['page'] = "checkout"
+    #     return redirect ('/users_login')
