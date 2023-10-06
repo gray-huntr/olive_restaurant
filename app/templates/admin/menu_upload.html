@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>Menu upload</title>
+</head>
+<body>
+    <h3 class="jumbotron">Menu uploads</h3>
+    <div class="container">
+        <!--    function to display success or error messages-->
+        <b>{% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{category}}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </b> <br>
+<!--        File selecting-->
+        <form action="/menu_upload" enctype="multipart/form-data" method="post">
+            <label> Select image to upload</label> <br>
+            <input type="file" name="file"> <br>
+            <label>Name</label><br>
+            <input type="text" name="name" required placeholder="Input name "><br>
+            <label>Price</label> <br>
+            <input type="number" name="price" required placeholder="Input price"><br><br>
+            <label>Select category</label>
+            <select name="category">
+                <option value=""></option>
+                <option value="Food">Food</option>
+                <option value="Drinks">Drinks</option>
+                <option value="Appetizer">Appetizer</option>
+                <option value="Special">Special</option>
+            </select><br>
+            <label>Description</label><br>
+            <textarea name="description" cols="30" rows="5" placeholder="Enter description here..."></textarea><br>
+            <button type="submit" class="btn btn-primary">SUBMIT</button>
+        </form>
+    </div>
+
+</body>
+</html>

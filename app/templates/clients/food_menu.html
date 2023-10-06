@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%include 'head.html'%}
+    <title>Food menu</title>
+</head>
+<body>
+    <h3 class="jumbotron">Food Menu</h3>
+    <div class="container">
+        <!--    function to display success or error messages-->
+        <b>{% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{category}}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </b> <br>
+    </div>
+    <section class="row col-md-12" >
+        {% for row in rows %}
+        <div class="col-md-4">
+            <div class="card">
+                <img src="static/images/{{row[2]}}" height="300" width="100%" alt="">
+                <div class="card-body" style="background-color: #000;">
+                    <h3><b class="card-title text-white" >{{ row[1]}}</b></h3> <br>
+                    <b><p class="text-danger"> KSH: {{ row[4] }}</p></b>
+                    <p class="text-white">{{ row[3] }}</p>
+                    <form action="/addtocart" method="post">
+                        <label class="text-white"> Input quantity below</label>
+                        <input type="text" name="quantity" required placeholder="Input quantity" value="1"> <br><br>
+                        <input type="text" name="id" value="{{row [0]}}" hidden>
+                        <button type="submit" class="btn btn-outline-danger">Add to cart</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+</body>
+</html>

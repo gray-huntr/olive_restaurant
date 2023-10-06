@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>Cart</title>
+</head>
+<body>
+    <h3 class="jumbotron">My cart</h3>
+<section class="">
+
+{% if 'cart_item' in session %}
+     <div class="container ">
+
+        <p><a href="{{ url_for('.empty_cart')}}" class="btn btn-danger">Empty Cart</a></p>
+        <table class="table table-striped">
+            <tr class="bg-dark text-white">
+                <td>NAME</td>
+                <td>PRICE</td>
+                <td>QUANTITY</td>
+                <TD>TOTAL</TD>
+                <td>ACTION</td>
+
+            </tr>
+            {% for key, val in session['cart_item'].items() %}
+            {% set item_price = session['cart_item'][key]['total_price'] %}
+
+            <tr>
+                <td>{{session['cart_item'][key]['product_name']}}</td>
+                <td>{{session['cart_item'][key]['product_cost']}}</td>
+                <td>{{session['cart_item'][key]['quantity']}}</td>
+                <td>{{session['cart_item'][key]['total_price']}}</td>
+                <td>
+                  <a href="{{ url_for('.delete_product', code=session['cart_item'][key]['ordercode'])}}" class="btn btn-danger">
+                            <span class="fa fa-trash"></span> Remove
+                    </a>
+                </td>
+            </tr>
+
+                    {% endfor %}
+            <tr>
+                <td><h4>TOTAL ORDERS MADE {{ session['all_total_quantity'] }} </h4></td>
+
+            </tr>
+            <tr>
+               <td><h4>TOTAL COST KES  {{ session['all_total_price'] }}</h4></td>
+            </tr>
+        </table>
+        <form action="" method="post" class="text-center">
+
+            <a href="/mpesa_payment" class="btn btn-info">
+                            <span class=""></span> proceed to pay
+            </a>
+            <a href="/food_menu" class="btn btn-info">
+                            <span class="fa fa-shopping-cart"></span> Order something else
+            </a>
+        </form>
+     </div>
+{% else %}
+    <div class="container">
+        <br>
+            <div class="alert-success" role="alert">
+            {{ msg }}
+            </div>
+        <br>
+           <div class="no-records alert alert-info">No Items in cart, click below to add an item</div>
+            <br>
+
+            <a href="/food_menu" class="btn btn-info">
+                            <span class="fa fa-shopping-cart"></span> Order something else
+            </a>
+    </div>
+
+{% endif %}
+</section>
+
+</body>
+</html>
