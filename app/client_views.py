@@ -294,6 +294,7 @@ def order( ):
     #     session['page'] = "checkout"
     #     return redirect ('/users_login')
 
+# route for clients to view their orders
 @app.route("/my_orders")
 def my_orders():
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -311,3 +312,12 @@ def my_orders():
         return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum)
     else:
         flash("You have no orders", "Warning")
+
+# Route to logout
+@app.route("/logout")
+def logout():
+    session.pop('cart_item', None)
+    session.pop('all_total_quantity', None)
+    session.pop('all_total_price', None)
+    session.pop('duid', None)
+    session.pop('table', None)
