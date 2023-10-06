@@ -255,10 +255,10 @@ def order( ):
         if 'cart_item' in session:
             all_total_price = 0
             all_total_quantity = 0
+            ordercode = receiptcode()
             for key, value in session['cart_item'].items():
                 individual_quantity = 1
                 individual_total_price = session['cart_item'][key]['total_price']
-                ordercode = receiptcode()
                 name = session['cart_item'][key]['product_name']
                 device_no = session['duid']
                 table_no = session['table']
@@ -268,7 +268,6 @@ def order( ):
 
                 all_total_quantity = all_total_quantity + individual_quantity
                 all_total_price = all_total_price + individual_total_price
-
 
                 # session
                 if not device_no or not table_no:
@@ -294,3 +293,21 @@ def order( ):
     # else:
     #     session['page'] = "checkout"
     #     return redirect ('/users_login')
+
+@app.route("/my_orders")
+def my_orders():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from inhouse_orders where table_number = %s and device_uid = %s and status != %s",
+                   (session['table'], session['duid'], "complete"))
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        # get total
+        total_sum = 0
+        for row in rows:
+            total_sum = total_sum + row[7]
+        return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum)
+    else:
+        flash("You have no orders", "Warning")
