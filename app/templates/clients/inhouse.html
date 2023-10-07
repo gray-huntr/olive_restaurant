@@ -8,16 +8,7 @@
     <h3 class="jumbotron">Inhouse Ordering</h3>
     <div class="text-center">
         <!--    function to display success or error messages-->
-        <b>{% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{category}}" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </b> <br>
+        {% include 'flash_message.html'%}
         <form action="/inhouse" method="post">
             <label>Device UID</label> <br>
             <input type="text" name="UID" placeholder="Input device UID" required> <br>

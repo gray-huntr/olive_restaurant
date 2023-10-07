@@ -1,20 +1,24 @@
 import pymysql
 
 from app import app
-from flask import render_template, request, flash,redirect, session, url_for
+from flask import render_template, request, flash, redirect, session, url_for
 from uuid import uuid4
 import pydataman as pd
+
 app.secret_key = app.config['SECRET_KEY']
+
 
 @app.route("/")
 def index():
     return render_template("clients/index.html")
 
+
 @app.route("/order_type")
 def order_type():
     return render_template('clients/order_type.html')
 
-@app.route("/inhouse", methods=['POST','GET'])
+
+@app.route("/inhouse", methods=['POST', 'GET'])
 def inhouse():
     if request.method == 'POST':
         duid = request.form['UID']
@@ -27,7 +31,7 @@ def inhouse():
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
 
-        cursor.execute("select * from device where uid = %s",duid)
+        cursor.execute("select * from device where uid = %s", duid)
         if cursor.rowcount == 1:
             cursor.execute("select * from tables where table_id = %s", table_num)
             if cursor.rowcount == 1:
@@ -38,7 +42,8 @@ def inhouse():
                         fname = row[1]
                         lname = row[2]
                         cursor.execute("insert into table_assignments(assignee_id, first_name, last_name, device_uid, "
-                                       "table_id) values (%s,%s,%s,%s,%s)", (employee_id, fname, lname, duid, table_num))
+                                       "table_id) values (%s,%s,%s,%s,%s)",
+                                       (employee_id, fname, lname, duid, table_num))
                         cursor.execute("update device set status = 'assigned' where uid = %s", duid)
                         session['duid'] = duid
                         session['table'] = table_num
@@ -55,6 +60,8 @@ def inhouse():
             return redirect('/inhouse')
     else:
         return render_template('clients/inhouse.html')
+
+
 @app.route("/signup", methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
@@ -72,26 +79,62 @@ def signup():
         cursor = conn.cursor()
         # Check first whether there is an already existing account
         cursor.execute("select * from clients where email = %s ", email)
-        if cursor.rowcount == 1:
-            return render_template('clients/sign_up.html', msg="Username already exists")
+        if cursor.rowcount > 0:
+            flash("Username already exists", "warning")
+            return render_template('clients/sign_up.html')
         else:
             # if there is no existing account, check whether the two passwords match
             if password == rep_pass:
                 #     insert the records to the users tables
                 cursor.execute(
                     "insert into clients(first_name,last_name,email,number,location,password) values (%s,%s,%s,%s,%s,%s)",
-                    (fname, lname, phone, email, location, password))
-                    # save records
+                    (fname, lname, email, phone, location, password))
+                # save records
                 conn.commit()
                 # redirect them to login page
                 return render_template('clients/login.html', )
                 # if passwords do not match display the following message
             elif password != rep_pass:
-                return render_template('clients/sign_up.html', msg="Passwords do not match")
+                flash("Passwords do not match", "danger")
+                return render_template('clients/sign_up.html')
             else:
-                return render_template('clients/sign_up.html', msg="Error")
+                flash("Error occurred please try again", "info")
+                return render_template('clients/sign_up.html')
     else:
         return render_template('clients/sign_up.html')
+
+
+@app.route("/login", methods=['POST','GET'])
+def login():
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        # pick the record from the clients table
+        cursor = conn.cursor()
+        cursor.execute("select * from clients where email =%s and password=%s", (email, password))
+        # if cursor.rowcount == 1:
+        if cursor.rowcount == 1:
+            session['email'] = email
+            return redirect('/food_menu')
+        elif cursor.rowcount == 0:
+            flash("User does not exist or incorrect password", "warning")
+            return render_template('clients/login.html')
+
+        # elif cursor.rowcount == 0:
+        #     cursor.execute("select * from admins where email =%s and password=%s", (email, password))
+        #     if cursor.rowcount == 1:
+        #         return render_template('admin.html', msg="login successful")
+        #     elif cursor.rowcount == 0:
+        #         flash("User does not exist or incorrect password", "warning")
+        #         return render_template('clients/login.html')
+    else:
+        return render_template('clients/login.html')
+
 
 @app.route("/food_menu")
 def food_menu():
@@ -108,6 +151,7 @@ def food_menu():
         flash("Out of stock please wait for a restock and try again later")
         return redirect('/order_type')
 
+
 @app.route("/drink_menu")
 def drink_menu():
     #  connect to database
@@ -122,6 +166,7 @@ def drink_menu():
     else:
         flash("Out of stock please wait for a restock and try again later")
         return redirect('/order_type')
+
 
 @app.route("/appetizer_menu")
 def appetizer_menu():
@@ -138,10 +183,13 @@ def appetizer_menu():
         flash("Out of stock please wait for a restock and try again later")
         return redirect('/order_type')
 
+
 # random string generator function
 def ordercode():
     ident = uuid4().__str__()[:8]
     return f"{ident}"
+
+
 @app.route("/addtocart/<category>", methods=['POST'])
 def addtocart(category):
     if category == "Food":
@@ -162,7 +210,8 @@ def addtocart(category):
             # am item array is created from the data above fetched from the database
             # it is under the random string generated with the route above
             itemArray = {str(code): {'product_name': row['name'], 'product_id': row['id'],
-                                     'product_cost': row['price'], 'quantity': qtty, 'individual_price': 1 * row['price'],
+                                     'product_cost': row['price'], 'quantity': qtty,
+                                     'individual_price': 1 * row['price'],
                                      'total_price': int(qtty) * row['price'], 'ordercode': code}}
             # print the item array on the terminal, can be removed....
             # print((itemArray))
@@ -260,6 +309,7 @@ def addtocart(category):
             flash('Error while adding item to cart', 'warning')
             return redirect(url_for('.drink_menu'))
 
+
 @app.route('/cart')
 def cart():
     return render_template('clients/cart.html')
@@ -275,40 +325,41 @@ def array_merge(first_array, second_array):
         return first_array.union(second_array)
     return False
 
+
 # Route to empty the cart
 @app.route('/empty')
 def empty_cart():
     try:
-        for key, value in session['cart_item'].items(): #takes and processes all the items in the cart item array
+        for key, value in session['cart_item'].items():  # takes and processes all the items in the cart item array
             # Each variable represents a particular session that is in the cart item
-            ordercode =  session['cart_item'][key]['ordercode']
+            ordercode = session['cart_item'][key]['ordercode']
             # id = session['cart_item'][key]['product_id']
             # quantity =  session['cart_item'][key]['quantity']
             # for item in session['cart_item'].items():
-                # for each item in the cart item array check whether the value at index 0 is equal to the order code
-                # if item[0] == ordercode:
-                #     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                #                            password=app.config["DB_PASSWORD"],
-                #                            database=app.config["DB_NAME"])
-                #     cursor = conn.cursor()
-                    # cursor.execute("select * from menu where product_id = '{}'".format(id))
-                    # # first checks if the id matches with any data in the menu table, if it matches,it will take the below route, if not.....else route
-                    # if cursor.rowcount == 1:
-                    #     rows = cursor.fetchall()
-                    #     # if the cart is emptied, the quantity of each item in the item array is reverted back to its original number before it was added to cart
-                    #     for row in rows:
-                    #         stock = row[5]
-                    #         new_stock = stock + int(quantity)
-                    #         cursor.execute("update games set quantity = %s where product_id = %s", (new_stock, id))
-                    #         conn.commit()
-                    # else:
-                    #     cursor.execute("select * from tech where product_id = '{}'".format(id))
-                    #     rows = cursor.fetchall()
-                    #     for row in rows:
-                    #         stock = row[4]
-                    #         new_stock = stock + int(quantity)
-                    #         cursor.execute("update tech set quantity = %s where product_id = %s", (new_stock, id))
-                    #         conn.commit()
+            # for each item in the cart item array check whether the value at index 0 is equal to the order code
+            # if item[0] == ordercode:
+            #     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+            #                            password=app.config["DB_PASSWORD"],
+            #                            database=app.config["DB_NAME"])
+            #     cursor = conn.cursor()
+            # cursor.execute("select * from menu where product_id = '{}'".format(id))
+            # # first checks if the id matches with any data in the menu table, if it matches,it will take the below route, if not.....else route
+            # if cursor.rowcount == 1:
+            #     rows = cursor.fetchall()
+            #     # if the cart is emptied, the quantity of each item in the item array is reverted back to its original number before it was added to cart
+            #     for row in rows:
+            #         stock = row[5]
+            #         new_stock = stock + int(quantity)
+            #         cursor.execute("update games set quantity = %s where product_id = %s", (new_stock, id))
+            #         conn.commit()
+            # else:
+            #     cursor.execute("select * from tech where product_id = '{}'".format(id))
+            #     rows = cursor.fetchall()
+            #     for row in rows:
+            #         stock = row[4]
+            #         new_stock = stock + int(quantity)
+            #         cursor.execute("update tech set quantity = %s where product_id = %s", (new_stock, id))
+            #         conn.commit()
 
         # after all the emptying is done, the function clears the below sessions leaving the cart empty
         if 'cart_item' in session or 'all_total_quantity' in session or 'all_total_price' in session:
@@ -321,6 +372,7 @@ def empty_cart():
 
     except Exception as e:
         print(e)
+
 
 @app.route('/delete/<string:code>')
 def delete_product(code):
@@ -352,7 +404,7 @@ def delete_product(code):
                 session['cart_item'].pop(item[0], None)
                 if 'cart_item' in session:
                     for key, value in session['cart_item'].items():
-                        #individual_quantity = int(session['cart_item'][key]['quantity'])
+                        # individual_quantity = int(session['cart_item'][key]['quantity'])
                         individual_total_price = session['cart_item'][key]['total_price']
                         all_total_quantity = all_total_quantity + 1
                         all_total_price = all_total_price + individual_total_price
@@ -367,6 +419,8 @@ def delete_product(code):
 
     except Exception as e:
         print(e)
+
+
 # Create a unique order code
 def receiptcode():
     # i = 1000
@@ -380,11 +434,13 @@ def receiptcode():
     else:
         flash("Order codes deplited")
 
+
 # Place inhouse orders in database
 @app.route('/order', methods=['POST', 'GET'])
-def order( ):
+def order():
     # if 'username' in session:
-        if 'cart_item' in session:
+    if 'cart_item' in session:
+        if 'duid' and 'table' in session:
             all_total_price = 0
             all_total_quantity = 0
             ordercode = receiptcode()
@@ -396,7 +452,7 @@ def order( ):
                 table_no = session['table']
                 cost = session['cart_item'][key]['product_cost']
                 qtty = session['cart_item'][key]['quantity']
-                total =session['cart_item'][key]['total_price']
+                total = session['cart_item'][key]['total_price']
 
                 all_total_quantity = all_total_quantity + individual_quantity
                 all_total_price = all_total_price + individual_total_price
@@ -411,21 +467,67 @@ def order( ):
                     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                                            password=app.config["DB_PASSWORD"],
                                            database=app.config["DB_NAME"])
-                    #     insert the records to the in-house orders tables
                     cursor = conn.cursor()
+                    # insert the records to the in-house orders tables
                     cursor.execute(
                         "insert into inhouse_orders(order_id,name,device_uid,table_number,cost,quantity,total) "
                         "values('{}','{}','{}','{}','{}','{}','{}')".format(
-                            ordercode, name,device_no,table_no, cost, qtty, total))
+                            ordercode, name, device_no, table_no, cost, qtty, total))
                     cursor.execute("update tables set status = 'in use' where table_id = %s", session['table'])
                     conn.commit()
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
             return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
-    # else:
-    #     session['page'] = "checkout"
-    #     return redirect ('/users_login')
+        elif 'email' in session:
+            all_total_price = 0
+            all_total_quantity = 0
+            ordercode = receiptcode()
+            for key, value in session['cart_item'].items():
+                individual_quantity = 1
+                individual_total_price = session['cart_item'][key]['total_price']
+                name = session['cart_item'][key]['product_name']
+                cost = session['cart_item'][key]['product_cost']
+                qtty = session['cart_item'][key]['quantity']
+                total = session['cart_item'][key]['total_price']
+
+                all_total_quantity = all_total_quantity + individual_quantity
+                all_total_price = all_total_price + individual_total_price
+
+                # session
+                if not session['email']:
+                    return redirect('/order_type')
+                elif not individual_total_price or not individual_quantity or not name or not all_total_price or not all_total_quantity:
+                    return redirect('/cart')
+                else:
+                    # we first connect to local host and game_store database
+                    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                                           password=app.config["DB_PASSWORD"],
+                                           database=app.config["DB_NAME"])
+                    cursor = conn.cursor()
+                    # get the data that is related to the currently logged in user
+                    cursor.execute("SELECT * FROM clients WHERE email= %s", session['email'])
+                    if cursor.rowcount == 1:
+                        rows = cursor.fetchall()
+                        for row in rows:
+                            username = row[0]
+                            number = row[3]
+                            location = row[4]
+                            #     insert the records to the takeaway orders tables
+                            cursor.execute(
+                                "insert into takeaway_orders(order_id,name,email,ordered_by,number,delivery_location,cost,quantity,total)"
+                                "values('{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(
+                                    ordercode, name,session['email'], username, number, location, cost, qtty, total))
+                            conn.commit()
+            session.pop('cart_item', None)
+            session.pop('all_total_quantity', None)
+            session.pop('all_total_price', None)
+            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+
+
+# else:
+#     session['page'] = "checkout"
+#     return redirect ('/users_login')
 
 # route for clients to view their orders
 @app.route("/my_orders")
@@ -434,18 +536,23 @@ def my_orders():
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from inhouse_orders where table_number = %s and device_uid = %s and status != %s",
-                   (session['table'], session['duid'], "complete"))
+    if 'email' in session:
+        cursor.execute("select * from takeaway_orders where email = %s",
+                       (session['email']))
+    else:
+        cursor.execute("select * from inhouse_orders where table_number = %s and device_uid = %s and status != %s",
+                       (session['table'], session['duid'], "complete"))
     if cursor.rowcount > 0:
         rows = cursor.fetchall()
         # get total
         total_sum = 0
         for row in rows:
-            total_sum = total_sum + row[7]
+            total_sum = total_sum + row[8]
         return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum)
     else:
         flash("You have no pending orders", 'Warning')
         return render_template('clients/my_orders.html')
+
 
 # Route to log out
 @app.route("/logout")

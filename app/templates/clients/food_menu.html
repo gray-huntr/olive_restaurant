@@ -9,16 +9,7 @@
     <h3 class="jumbotron">Food Menu</h3>
     <div class="container">
         <!--    function to display success or error messages-->
-        <b>{% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{category}}" role="alert">
-                {{ message }}
-            </div>
-            {% endfor %}
-            {% endif %}
-            {% endwith %}
-        </b> <br>
+                {%include 'flash_message.html'%}
     </div>
     <section class="row col-md-12" >
         {% for row in rows %}
