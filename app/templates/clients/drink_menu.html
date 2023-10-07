@@ -29,17 +29,17 @@
                     <h3><b class="card-title text-white" >{{ row[1]}}</b></h3>
                     <p class="text-white">{{ row[3] }}</p>
                     <form action="/addtocart/Drink" method="post">
-<!--                        A div containing the quantity, type of drink and size of drink-->
+<!--                        A div containing the quantity, type of drink-->
                         <div class="row">
 <!--                            Contains quantity-->
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="text-white"> Input quantity</label> <br>
                                 <input type="text" name="quantity" required placeholder="Input quantity" value="1" style="width:70px"> <br><br>
                             </div>
 <!--                            Contains the type of soda to choose from-->
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 {% if row [1] == "Soda"%}
-                                    <label class="text-white">Pick Soda</label>
+                                    <label class="text-white">Pick Soda</label><br>
                                     <select name="soda">
                                         <option value="Coca cola">Coca cola</option>
                                         <option value="Sprite">Sprite</option>
@@ -47,7 +47,7 @@
                                         <option value="Stoney">Stoney</option>
                                     </select>
                                 {% elif row [1] == "Fresh juice" %}
-                                    <label class="text-white">Pick flavour</label>
+                                    <label class="text-white">Pick flavour</label><br>
                                     <select name="soda">
                                         <option value="Mango">Mango</option>
                                         <option value="Passion">Passion</option>
@@ -55,7 +55,7 @@
                                         <option value="Bitroot">Bitroot</option>
                                     </select>
                                 {% elif row [1] == "Youghurt" %}
-                                    <label class="text-white">Pick flavour</label>
+                                    <label class="text-white">Pick flavour</label><br>
                                     <select name="soda">
                                         <option value="Vanilla">Vanilla</option>
                                         <option value="Strawberry">Strawberry</option>
@@ -63,6 +63,7 @@
                                     </select>
                                 {% endif %}
                             </div>
+                        </div>
 <!--                            Contains the size to choose from-->
                             <div class="col-md-4" style="padding-left: 0px">
                                 <label for="size" class="text-white">Pick size</label>
@@ -71,7 +72,6 @@
                                     <option value="100">500 ml (KSH 100)</option>
                                 </select>
                             </div>
-                        </div>
                         <input type="text" name="id" value="{{row [0]}}" hidden>
                         <button type="submit" class="btn btn-outline-danger">Add to cart</button>
                     </form>

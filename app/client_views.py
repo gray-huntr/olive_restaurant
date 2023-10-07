@@ -55,6 +55,7 @@ def inhouse():
             return redirect('/inhouse')
     else:
         return render_template('clients/inhouse.html')
+
 @app.route("/food_menu")
 def food_menu():
     #  connect to database
@@ -81,6 +82,21 @@ def drink_menu():
     if cursor.rowcount > 0:
         rows = cursor.fetchall()
         return render_template('clients/drink_menu.html', rows=rows)
+    else:
+        flash("Out of stock please wait for a restock and try again later")
+        return redirect('/order_type')
+
+@app.route("/appetizer_menu")
+def appetizer_menu():
+    #  connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from menu where category = 'Appetizer'")
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template('clients/appetizer_menu.html', rows=rows)
     else:
         flash("Out of stock please wait for a restock and try again later")
         return redirect('/order_type')
