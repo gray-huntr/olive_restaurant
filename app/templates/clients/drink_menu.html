@@ -27,7 +27,6 @@
                 <img src="static/images/{{row[2]}}" height="300" width="100%" alt="">
                 <div class="card-body" style="background-color: #000;">
                     <h3><b class="card-title text-white" >{{ row[1]}}</b></h3>
-                    <b class="text-danger"> KSH: <span id="price"></span></b>
                     <p class="text-white">{{ row[3] }}</p>
                     <form action="/addtocart/Drink" method="post">
 <!--                        A div containing the quantity, type of drink and size of drink-->
@@ -39,20 +38,37 @@
                             </div>
 <!--                            Contains the type of soda to choose from-->
                             <div class="col-md-4">
-                                <label class="text-white">Pick Soda</label>
-                                <select name="soda" id="">
-                                    <option value="Coca cola">Coca cola</option>
-                                    <option value="Sprite">Sprite</option>
-                                    <option value="Black current">Black current</option>
-                                    <option value="Stoney">Stoney</option>
-                                </select>
+                                {% if row [1] == "Soda"%}
+                                    <label class="text-white">Pick Soda</label>
+                                    <select name="soda">
+                                        <option value="Coca cola">Coca cola</option>
+                                        <option value="Sprite">Sprite</option>
+                                        <option value="Black current">Black current</option>
+                                        <option value="Stoney">Stoney</option>
+                                    </select>
+                                {% elif row [1] == "Fresh juice" %}
+                                    <label class="text-white">Pick flavour</label>
+                                    <select name="soda">
+                                        <option value="Mango">Mango</option>
+                                        <option value="Passion">Passion</option>
+                                        <option value="Pineapple">Pineapple</option>
+                                        <option value="Bitroot">Bitroot</option>
+                                    </select>
+                                {% elif row [1] == "Youghurt" %}
+                                    <label class="text-white">Pick flavour</label>
+                                    <select name="soda">
+                                        <option value="Vanilla">Vanilla</option>
+                                        <option value="Strawberry">Strawberry</option>
+                                        <option value="Pineapple">Pineapple</option>
+                                    </select>
+                                {% endif %}
                             </div>
 <!--                            Contains the size to choose from-->
-                            <div class="col-md-4">
+                            <div class="col-md-4" style="padding-left: 0px">
                                 <label for="size" class="text-white">Pick size</label>
                                 <select name="size" id="size">
-                                    <option value="60">300 ml</option>
-                                    <option value="100">500 ml</option>
+                                    <option value="60">300 ml (KSH 60)</option>
+                                    <option value="100">500 ml (KSH 100)</option>
                                 </select>
                             </div>
                         </div>
@@ -64,17 +80,17 @@
         </div>
         {% endfor %}
     </section>
-    <script>
-        function notEmpty(){
+<!--    <script>-->
+<!--        function notEmpty(){-->
 
-            var e = document.getElementById("size");
-            var strUser = e.options[e.selectedIndex].value;
-            document.getElementById('price').innerHTML = strUser;
+<!--            var e = document.querySelectorAll("#size");-->
+<!--            var strUser = e.options[e.selectedIndex].value;-->
+<!--            document.querySelectorAll('#price').innerHTML = strUser;-->
 
-        }
-        notEmpty()
+<!--        }-->
+<!--        notEmpty()-->
 
-        document.getElementById("size").onchange = notEmpty;
-    </script>
+<!--        document.querySelectorAll("#size").onchange = notEmpty;-->
+<!--    </script>-->
 </body>
 </html>
