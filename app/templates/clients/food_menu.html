@@ -29,7 +29,7 @@
                     <h3><b class="card-title text-white" >{{ row[1]}}</b></h3> <br>
                     <b><p class="text-danger"> KSH: {{ row[4] }}</p></b>
                     <p class="text-white">{{ row[3] }}</p>
-                    <form action="/addtocart" method="post">
+                    <form action="/addtocart/Food" method="post">
                         <label class="text-white"> Input quantity below</label>
                         <input type="text" name="quantity" required placeholder="Input quantity" value="1"> <br><br>
                         <input type="text" name="id" value="{{row [0]}}" hidden>

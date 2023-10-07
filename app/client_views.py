@@ -43,7 +43,7 @@ def inhouse():
                         session['duid'] = duid
                         session['table'] = table_num
                         conn.commit()
-                        return render_template("clients/inhouse.html")
+                        return redirect("/food_menu")
                 else:
                     flash("Incorrect UID, table number or author code", category="primary")
                     return redirect('/inhouse')
@@ -69,64 +69,143 @@ def food_menu():
     else:
         flash("Out of stock please wait for a restock and try again later")
         return redirect('/order_type')
+
+@app.route("/drink_menu")
+def drink_menu():
+    #  connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from menu where category = 'Drinks'")
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template('clients/drink_menu.html', rows=rows)
+    else:
+        flash("Out of stock please wait for a restock and try again later")
+        return redirect('/order_type')
+
 # random string generator function
 def ordercode():
     ident = uuid4().__str__()[:8]
     return f"{ident}"
-@app.route("/addtocart", methods=['POST'])
-def addtocart():
-    id = request.form['id']
-    qtty = int(request.form['quantity'])
-    # create a unique code from the random string generator route
-    code = ordercode()
-    # validate the received values
-    if id and request.method == 'POST':
-        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                               password=app.config["DB_PASSWORD"],
-                               database=app.config["DB_NAME"])
-        cursor = conn.cursor(pymysql.cursors.DictCursor)
-        cursor.execute("SELECT * FROM menu WHERE id= %s", id)
-        row = cursor.fetchone()
+@app.route("/addtocart/<category>", methods=['POST'])
+def addtocart(category):
+    if category == "Food":
+        id = request.form['id']
+        qtty = int(request.form['quantity'])
+        # create a unique code from the random string generator route
+        code = ordercode()
+        # validate the received values
+        if id and request.method == 'POST':
+            conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                                   password=app.config["DB_PASSWORD"],
+                                   database=app.config["DB_NAME"])
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute("SELECT * FROM menu WHERE id= %s", id)
+            row = cursor.fetchone()
 
-        # An array is a collection of items stored at contiguous memory locations. The idea is to store multiple items of the same type together
-        # am item array is created from the data above fetched from the database
-        # it is under the random string generated with the route above
-        itemArray = {str(code): {'product_name': row['name'], 'product_id': row['id'],
-                                 'product_cost': row['price'], 'quantity': qtty, 'individual_price': 1 * row['price'],
-                                 'total_price': int(qtty) * row['price'], 'ordercode': code}}
-        # print the item array on the terminal, can be removed....
-        # print((itemArray))
+            # An array is a collection of items stored at contiguous memory locations. The idea is to store multiple items of the same type together
+            # am item array is created from the data above fetched from the database
+            # it is under the random string generated with the route above
+            itemArray = {str(code): {'product_name': row['name'], 'product_id': row['id'],
+                                     'product_cost': row['price'], 'quantity': qtty, 'individual_price': 1 * row['price'],
+                                     'total_price': int(qtty) * row['price'], 'ordercode': code}}
+            # print the item array on the terminal, can be removed....
+            # print((itemArray))
 
-        all_total_price = 0
-        all_total_quantity = 0
-        session.modified = True
-        # if there is an item already
-        if 'cart_item' in session:
-            # a new product added in the cart to Merge the previous to have a new cart item with two products
-            session['cart_item'] = array_merge(session['cart_item'], itemArray)
-            #  for each item in the array
-            for key, value in session['cart_item'].items():
-                individual_quantity = 1
-                individual_total_price = session['cart_item'][key]['total_price']
-                all_total_quantity = all_total_quantity + individual_quantity
-                all_total_price = all_total_price + individual_total_price
+            all_total_price = 0
+            all_total_quantity = 0
+            session.modified = True
+            # if there is an item already
+            if 'cart_item' in session:
+                # a new product added in the cart to Merge the previous to have a new cart item with two products
+                session['cart_item'] = array_merge(session['cart_item'], itemArray)
+                #  for each item in the array
+                for key, value in session['cart_item'].items():
+                    individual_quantity = 1
+                    individual_total_price = session['cart_item'][key]['total_price']
+                    all_total_quantity = all_total_quantity + individual_quantity
+                    all_total_price = all_total_price + individual_total_price
 
 
+            else:
+                # if the cart is empty you add the whole item array and create a session
+                session['cart_item'] = itemArray
+                all_total_quantity = all_total_quantity + 1
+                # get total price by multiplying the cost and the quantity
+                all_total_price = all_total_price + int(qtty) * row['price']
+
+            # add total quantity and total price to a session
+            session['all_total_quantity'] = all_total_quantity
+            session['all_total_price'] = all_total_price
+
+            flash('Order added to cart successfully', 'success')
+            return redirect(url_for('.food_menu'))
         else:
-            # if the cart is empty you add the whole item array and create a session
-            session['cart_item'] = itemArray
-            all_total_quantity = all_total_quantity + 1
-            # get total price by multiplying the cost and the quantity
-            all_total_price = all_total_price + int(qtty) * row['price']
+            return 'Error while adding item to cart'
+    elif category == "Drink":
+        id = request.form['id']
+        qtty = int(request.form['quantity'])
+        soda = request.form['soda']
+        price = int(request.form['size'])
 
-        # add total quantity and total price to a session
-        session['all_total_quantity'] = all_total_quantity
-        session['all_total_price'] = all_total_price
+        if price == 60:
+            size = "300 ML"
+        else:
+            size = "500 ML"
+        # create a unique code from the random string generator route
+        code = ordercode()
+        # validate the received values
+        if id and request.method == 'POST':
+            conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                                   password=app.config["DB_PASSWORD"],
+                                   database=app.config["DB_NAME"])
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute("SELECT * FROM menu WHERE id= %s", id)
+            row = cursor.fetchone()
 
-        flash('Order added to cart successfully', 'success')
-        return redirect(url_for('.food_menu'))
-    else:
-        return 'Error while adding item to cart'
+            # An array is a collection of items stored at contiguous memory locations. The idea is to store multiple items of the same type together
+            # am item array is created from the data above fetched from the database
+            # it is under the random string generated with the route above
+            itemArray = {str(code): {'product_name': soda + f" ({size})", 'product_id': row['id'],
+                                     'product_cost': price, 'quantity': qtty,
+                                     'individual_price': 1 * price,
+                                     'total_price': qtty * price, 'ordercode': code}}
+            # print the item array on the terminal, can be removed....
+            # print((itemArray))
+
+            all_total_price = 0
+            all_total_quantity = 0
+            session.modified = True
+            # if there is an item already
+            if 'cart_item' in session:
+                # a new product added in the cart to Merge the previous to have a new cart item with two products
+                session['cart_item'] = array_merge(session['cart_item'], itemArray)
+                #  for each item in the array
+                for key, value in session['cart_item'].items():
+                    individual_quantity = 1
+                    individual_total_price = session['cart_item'][key]['total_price']
+                    all_total_quantity = all_total_quantity + individual_quantity
+                    all_total_price = all_total_price + individual_total_price
+
+
+            else:
+                # if the cart is empty you add the whole item array and create a session
+                session['cart_item'] = itemArray
+                all_total_quantity = all_total_quantity + 1
+                # get total price by multiplying the cost and the quantity
+                all_total_price = all_total_price + int(qtty) * int(price)
+
+            # add total quantity and total price to a session
+            session['all_total_quantity'] = all_total_quantity
+            session['all_total_price'] = all_total_price
+
+            flash('Order added to cart successfully', 'success')
+            return redirect(url_for('.drink_menu'))
+        else:
+            flash('Error while adding item to cart', 'warning')
+            return redirect(url_for('.drink_menu'))
 
 @app.route('/cart')
 def cart():
@@ -285,6 +364,7 @@ def order( ):
                         "insert into inhouse_orders(order_id,name,device_uid,table_number,cost,quantity,total) "
                         "values('{}','{}','{}','{}','{}','{}','{}')".format(
                             ordercode, name,device_no,table_no, cost, qtty, total))
+                    cursor.execute("update tables set status = 'in use' where table_id = %s", session['table'])
                     conn.commit()
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
@@ -311,9 +391,10 @@ def my_orders():
             total_sum = total_sum + row[7]
         return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum)
     else:
-        flash("You have no orders", "Warning")
+        flash("You have no pending orders", 'Warning')
+        return render_template('clients/my_orders.html')
 
-# Route to logout
+# Route to log out
 @app.route("/logout")
 def logout():
     session.pop('cart_item', None)
@@ -321,3 +402,4 @@ def logout():
     session.pop('all_total_price', None)
     session.pop('duid', None)
     session.pop('table', None)
+    return redirect('/')
