@@ -55,6 +55,43 @@ def inhouse():
             return redirect('/inhouse')
     else:
         return render_template('clients/inhouse.html')
+@app.route("/signup", methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        fname = request.form['fname']
+        lname = request.form['lname']
+        phone = request.form['phone']
+        email = request.form['email']
+        location = request.form['location']
+        password = request.form['password']
+        rep_pass = request.form['repeat_pass']
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        # Check first whether there is an already existing account
+        cursor.execute("select * from clients where email = %s ", email)
+        if cursor.rowcount == 1:
+            return render_template('clients/sign_up.html', msg="Username already exists")
+        else:
+            # if there is no existing account, check whether the two passwords match
+            if password == rep_pass:
+                #     insert the records to the users tables
+                cursor.execute(
+                    "insert into clients(first_name,last_name,email,number,location,password) values (%s,%s,%s,%s,%s,%s)",
+                    (fname, lname, phone, email, location, password))
+                    # save records
+                conn.commit()
+                # redirect them to login page
+                return render_template('clients/login.html', )
+                # if passwords do not match display the following message
+            elif password != rep_pass:
+                return render_template('clients/sign_up.html', msg="Passwords do not match")
+            else:
+                return render_template('clients/sign_up.html', msg="Error")
+    else:
+        return render_template('clients/sign_up.html')
 
 @app.route("/food_menu")
 def food_menu():

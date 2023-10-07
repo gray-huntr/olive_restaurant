@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>Sign up</title>
+</head>
+<body>
+<h3 class="jumbotron">Sign up</h3>
+<section class="row container" style="padding-left:300px ">
+    <div class="col-md-6">
+        <form action="/signup" method="post" >
+            <fieldset class="form-group border p-3">
+                <label>First name</label><br>
+                <input class="form-control" type="text" placeholder="Enter first name" name="fname" required>
+                <label>Last name</label><br>
+                <input class="form-control" type="text" placeholder="Enter last name" name="lname" required>
+                <label>Email address</label><br>
+                <input class="form-control" type="email" placeholder="Enter email address" name="email" required>
+                <label>Phone number</label><br>
+                <input class="form-control" type="number" placeholder="Enter Phone number" name="phone" required>
+                <label>Delivery location</label><br>
+                <label>Note: can be changed when placing order</label><br>
+                <input class="form-control" type="text" placeholder="Enter delivery location" name="location" required>
+                <label>Password</label><br>
+                <input class="form-control" type="password" placeholder="Enter password" name="password" required>
+                <label>Repeat password</label><br>
+                <input class="form-control" type="password" placeholder="Repeat password" name="repeat_pass" required><br>
+                <button class="btn btn-outline-danger" type="submit">SUBMIT</button>
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+<!--        <img src="static/images/welcome.png" alt="">-->
+
+    </div>
+</section>
+
+</body>
+</html>
