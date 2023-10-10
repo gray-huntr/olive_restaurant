@@ -563,7 +563,7 @@ def my_orders():
 
 @app.route('/mpesa_payment', methods = ['POST','GET'])
 def mpesa_payment():
-    if 'duid' and 'table' in session:
+    if 'duid' and 'table' and 'rider' in session:
         # conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
         #                        password=app.config["DB_PASSWORD"],
         #                        database=app.config["DB_NAME"])
@@ -625,8 +625,12 @@ def mpesa_payment():
             print(phone)
             print (response.text)
             session.pop('request', None)
-            flash("Complete the payment on your phone", "info")
-            return redirect('/my_orders')
+            if 'rider' in session:
+                flash("Tell client to complete order on phone", "info")
+                return redirect('/deliveries')
+            else:
+                flash("Complete payment on phone", "info")
+                return redirect('/my_orders')
         else:
             return redirect('/my_orders')
     else:

@@ -42,3 +42,24 @@ def delivery():
     else:
         return render_template("staff/staff_login.html")
 
+@app.route("/deliveries")
+def deliveries():
+    if "rider" in session:
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("select * from takeaway_orders where delivery_person = %s and status != %s ",
+                       (session['rider'], "Complete"))
+        if cursor.rowcount == 0:
+            flash("You have no pending deliveries", "info")
+            return render_template("staff/deliveries.html")
+        else:
+            rows = cursor.fetchall()
+            total_sum = 0
+            for row in rows:
+                total_sum = total_sum + row [8]
+            return render_template("staff/deliveries.html", rows=rows, total_sum=total_sum)
+    else:
+        flash("Please login first", "info")
+        return redirect("/staff_login")
