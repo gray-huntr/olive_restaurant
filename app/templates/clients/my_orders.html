@@ -9,8 +9,8 @@
     <h3 class="jumbotron"> My orders</h3>
     <div class="container">
         <!--    function to display success or error messages-->
-            {% include 'flash_message.html'%}
         {%if 'email' in session%}
+            {% include 'flash_message.html'%}
             <table class="table table-striped">
             <tr class="bg-dark text-white">
                 <td>ORDER ID</td>
@@ -38,6 +38,7 @@
             </tr>
         </table>
         {% else %}
+        {% include 'flash_message.html'%}
         <table class="table table-striped">
             <tr class="bg-dark text-white">
                 <td>ORDER ID</td>
@@ -49,12 +50,12 @@
             </tr>
             {%for row in rows%}
             <tr>
-                <td>{{row [0]}}</td>
                 <td>{{row [1]}}</td>
-                <td>{{row [5]}}</td>
+                <td>{{row [2]}}</td>
                 <td>{{row [6]}}</td>
                 <td>{{row [7]}}</td>
-                <td>{{row [4]}}</td>
+                <td>{{row [8]}}</td>
+                <td>{{row [5]}}</td>
             </tr>
             {%endfor%}
 
@@ -62,6 +63,15 @@
                 <td><h5>Total cost KES {{total_sum}}</h5></td>
             </tr>
         </table>
+
+        <form action="/mpesa_payment" method="post">
+            <fieldset class="form-group border p-3">
+            <p>To pay with mpesa, please input your safaricom number below</p>
+            <p>Amount to be paid: KSH {{total_sum}}</p>
+            <input type="number" placeholder="07xxxxxxxx" name="phone" required><br><br>
+            <button type="submit" class="btn btn-success">Pay</button>
+            </fieldset>
+        </form>
         {% endif %}
     </div>
 

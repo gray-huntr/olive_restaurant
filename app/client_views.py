@@ -4,6 +4,14 @@ from app import app
 from flask import render_template, request, flash, redirect, session, url_for
 from uuid import uuid4
 import pydataman as pd
+# mpesa integration
+import requests
+import datetime
+import base64
+import jsonify
+import subprocess
+from requests.auth import HTTPBasicAuth
+
 
 app.secret_key = app.config['SECRET_KEY']
 
@@ -553,6 +561,84 @@ def my_orders():
         flash("You have no pending orders", 'Warning')
         return render_template('clients/my_orders.html')
 
+@app.route('/mpesa_payment', methods = ['POST','GET'])
+def mpesa_payment():
+    if 'duid' and 'table' in session:
+        # conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+        #                        password=app.config["DB_PASSWORD"],
+        #                        database=app.config["DB_NAME"])
+        # cursor = conn.cursor()
+        # cursor.execute("SELECT * FROM clients where username = %s", (session['username']))
+        # # AFter executing the query above, get all rows
+        # number = cursor.fetchall()
+        # session['request'] = 'accept'
+
+        if request.method == 'POST':
+            phone = str(int(request.form['phone']))
+            phone = str("254") + phone
+            # account = request.form['account']
+            # amount = str(request.form['amount'])
+
+            #GENERATING THE ACCESS TOKEN
+            consumer_key = "0aDsNA5rkQiAFJY594KxPtDkAfyZp51s"
+            consumer_secret = "b96yLzkGAP5Lt44j"
+
+            api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials" #AUTH URL
+            r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
+
+            data = r.json()
+            access_token = "Bearer" + ' ' + data['access_token']
+
+            #  GETTING THE PASSWORD
+            timestamp = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+            passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+            business_short_code = "174379"
+            data = business_short_code + passkey + timestamp
+            encoded = base64.b64encode(data.encode())
+            password = encoded.decode('utf-8')
+
+
+            # BODY OR PAYLOAD
+            payload = {
+                "BusinessShortCode": "174379",
+                "Password": "{}".format(password),
+                "Timestamp": "{}".format(timestamp),
+                "TransactionType": "CustomerPayBillOnline",
+                "Amount": "1", #use 1 when testing
+                "PartyA": phone, #phone number that is paying
+                "PartyB": "174379", #paybill number
+                "PhoneNumber": phone, #phone number that is paying
+                "CallBackURL": "https://0b97-196-202-162-46.ngrok.io/callback" ,
+                "AccountReference": "Olive restaurant",
+                "TransactionDesc": "account"
+            }
+
+            # POPULATING THE HTTP HEADER
+            headers = {
+                "Authorization": access_token,
+                "Content-Type": "application/json"
+            }
+
+            url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest" #C2B URL
+
+            response = requests.post(url, json=payload, headers=headers)
+            print(phone)
+            print (response.text)
+            session.pop('request', None)
+            flash("Complete the payment on your phone", "info")
+            return redirect('/my_orders')
+        else:
+            return redirect('/my_orders')
+    else:
+        return redirect('/order_type')
+
+# @app.route("/callback")
+# def callback():
+#     subprocess.call("php app/call.php")
+    # proc = subprocess.Popen("php app/call.php", shell=True, stdout=subprocess.PIPE)
+    # script_response = proc.stdout.read()
+    # print(script_response)
+
 
 # Route to log out
 @app.route("/logout")
@@ -562,4 +648,5 @@ def logout():
     session.pop('all_total_price', None)
     session.pop('duid', None)
     session.pop('table', None)
+    session.pop('email', None)
     return redirect('/')
