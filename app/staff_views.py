@@ -294,3 +294,38 @@ def admin_signup():
 @app.route("/admin_portal")
 def admin_portal():
     return render_template("admin/admin_portal.html")
+
+@app.route("/new_employee", methods=['POST','GET'])
+def new_employee():
+    if request.method == 'POST':
+        employee_id = request.form['employee_id']
+        fname = request.form['fname']
+        lname = request.form['lname']
+        phone = request.form['phone']
+        email = request.form['email']
+        category = request.form['category']
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        # Check first whether there is an already existing account
+        cursor.execute("select * from employees where email = %s and employee_id = %s ", (email,employee_id))
+        if cursor.rowcount > 0:
+            flash("Email or employee id already exists, try another one", "warning")
+            return render_template('admin/new_employee.html')
+        elif cursor.rowcount == 0:
+            # if there is no existing account, proceed
+                #     insert the records to the employees tables
+                cursor.execute(
+                    "insert into employees(employee_id,first_name,last_name,number,email,category) values (%s,%s,%s,%s,%s,%s)",
+                    (employee_id,fname, lname, phone, email, category ))
+                # save records
+                conn.commit()
+                flash("Employee signed up successfully", "success")
+                return render_template('admin/new_employee.html', )
+        else:
+            flash("Error occurred please try again", "info")
+            return render_template('admin/new_employee.html')
+    else:
+        return render_template('admin/new_employee.html')

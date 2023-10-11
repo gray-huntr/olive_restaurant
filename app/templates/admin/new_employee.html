@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>employee sign up</title>
+</head>
+<body>
+<h3 class="jumbotron">Employee Sign up</h3>
+<section class="">
+    <div class="container col-md-4 text-white">
+        {%include 'flash_message.html'%}
+        <form action="/new_employee" method="post" style="background-color: black;">
+            <fieldset class="form-group border p-3">
+                <label>Employee id</label><br>
+                <input class="form-control" type="text" placeholder="Enter employee id" name="employee_id" required>
+                <label>First name</label><br>
+                <input class="form-control" type="text" placeholder="Enter first name" name="fname" required>
+                <label>Last name</label><br>
+                <input class="form-control" type="text" placeholder="Enter last name" name="lname" required>
+                <label>Email address</label><br>
+                <input class="form-control" type="email" placeholder="Enter email address" name="email" required>
+                <label>Phone number</label><br>
+                <input class="form-control" type="number" placeholder="Enter Phone number" name="phone" required>
+                <label>Category</label><br>
+                <select name="category" id="" class="form-control">
+                    <option value="">Select category</option>
+                    <option value="Service_staff">Service staff</option>
+                    <option value="Kitchen_staff">Kitchen staff</option>
+                    <option value="Rider">Rider</option>
+                </select><br>
+                <button class="btn btn-outline-danger" type="submit">Sign up</button><br><br>
+            </fieldset>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>
