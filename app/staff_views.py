@@ -24,7 +24,7 @@ def delivery():
             cursor.execute("select * from employees where category = 'Kitchen_staff' and employee_id = %s ", emp_id)
             if cursor.rowcount == 1:
                 session['Kitchen_staff'] = emp_id
-                return redirect('/deliveries')
+                return redirect('/inhouse_orders')
             else:
                 flash("No Kitchen staff found with the credentials given", "info")
                 return render_template("staff/staff_login.html")
@@ -63,3 +63,41 @@ def deliveries():
     else:
         flash("Please login first", "info")
         return redirect("/staff_login")
+@app.route("/inhouse_orders")
+def food_orders():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from inhouse_orders group by order_id")
+    rows = cursor.fetchall()
+    return render_template("staff/kitchen/inhouse_orders.html", rows=rows)
+
+@app.route("/takeaway_orders")
+def takeaway_orders():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from takeaway_orders group by order_id")
+    rows = cursor.fetchall()
+    return render_template("staff/kitchen/takeaway_orders.html", rows=rows)
+
+@app.route("/view/<order_id>")
+def view(order_id):
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from inhouse_orders where order_id = %s", order_id)
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        return render_template("staff/kitchen/order_view.html", rows=rows)
+    elif cursor.rowcount == 0:
+        cursor.execute("select * from takeaway_orders where order_id = %s", order_id)
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/kitchen/order_view.html", rows=rows)
+        else:
+            flash("No orders by that ID, try again", "warning")
+            return render_template("staff/kitchen/order_view.html")

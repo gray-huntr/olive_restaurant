@@ -653,4 +653,5 @@ def logout():
     session.pop('duid', None)
     session.pop('table', None)
     session.pop('email', None)
+    session.pop('rider')
     return redirect('/')
