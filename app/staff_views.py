@@ -3,7 +3,7 @@ import pymysql
 from app import app
 from flask import render_template, request, flash, redirect, session, url_for
 
-
+# Route for staff login
 @app.route("/staff_login", methods=['POST', 'GET'])
 def staff_login():
     if request.method == 'POST':
@@ -49,7 +49,7 @@ def staff_login():
     else:
         return render_template("staff/staff_login.html")
 
-
+# Route for delivery person
 @app.route("/deliveries")
 def deliveries():
     if "rider" in session:
@@ -73,6 +73,7 @@ def deliveries():
         flash("Please login first", "info")
         return redirect("/staff_login")
 
+# Routes for the kitchen staff
 
 @app.route("/inhouse_orders")
 def food_orders():
@@ -169,6 +170,7 @@ def done_prepping(order_id):
         return redirect(f"/view/{order_id}")
 
 
+# Routes for the service staff
 @app.route("/service")
 def service():
     if 'Service_staff' in session:
@@ -225,3 +227,26 @@ def logout_staff():
     if 'Kitchen_staff' in session:
         session.pop('Kitchen_staff', None)
     return redirect('/staff_login')
+
+# Routes for the admins
+
+@app.route("/admin_login")
+def admin_login():
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        # pick the record from the clients table
+        cursor = conn.cursor()
+        cursor.execute("select * from admins where email =%s and password=%s", (email, password))
+        # if cursor.rowcount == 1:
+        if cursor.rowcount == 1:
+            session['email'] = email
+            return redirect('/admin_portal')
+        elif cursor.rowcount == 0:
+            flash("User does not exist or incorrect password", "warning")
+            return render_template('admin/admin_login.html')

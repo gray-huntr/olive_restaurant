@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>Login</title>
+</head>
+<body>
+<h3 class="jumbotron">Admin Login</h3>
+<section>
+    <div class="container col-md-4 text-white" >
+        {%include 'flash_message.html'%}
+        <form action="/admin_login" method="post" style="background-color: black;">
+            <fieldset class="form-group border p-3">
+                <label>Enter email</label><br>
+                <input type="text" name="email" class="form-control" required placeholder="Enter email">
+                <label>Enter password</label><br>
+                <input type="password" name="password" class="form-control" required placeholder="Enter password"><br>
+                <button type="submit" class="btn btn-outline-danger">LOGIN</button><br><br>
+            </fieldset>
+        </form>
+    </div>
+</section>
+
+</body>
+</html>
