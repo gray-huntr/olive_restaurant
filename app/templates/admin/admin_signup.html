@@ -5,12 +5,11 @@
     <title>Sign up</title>
 </head>
 <body>
-<h3 class="jumbotron">Sign up</h3>
+<h3 class="jumbotron">Admin Sign up</h3>
 <section class="">
-
     <div class="container col-md-4 text-white">
         {%include 'flash_message.html'%}
-        <form action="/signup" method="post" style="background-color: black;">
+        <form action="/admin_signup" method="post" style="background-color: black;">
             <fieldset class="form-group border p-3">
                 <label>First name</label><br>
                 <input class="form-control" type="text" placeholder="Enter first name" name="fname" required>
@@ -20,15 +19,11 @@
                 <input class="form-control" type="email" placeholder="Enter email address" name="email" required>
                 <label>Phone number</label><br>
                 <input class="form-control" type="number" placeholder="Enter Phone number" name="phone" required>
-                <label>Delivery location</label><br>
-                <label>Note: can be changed when placing order</label><br>
-                <input class="form-control" type="text" placeholder="Enter delivery location" name="location" required>
                 <label>Password</label><br>
                 <input class="form-control" type="password" placeholder="Enter password" name="password" required>
                 <label>Repeat password</label><br>
                 <input class="form-control" type="password" placeholder="Repeat password" name="repeat_pass" required><br>
                 <button class="btn btn-outline-danger" type="submit">Sign up</button><br><br>
-                <a href="/login"><button type="button" class="btn btn-outline-danger">Already have an account?</button></a>
             </fieldset>
         </form>
     </div>

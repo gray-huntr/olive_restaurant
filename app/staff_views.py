@@ -250,3 +250,43 @@ def admin_login():
         elif cursor.rowcount == 0:
             flash("User does not exist or incorrect password", "warning")
             return render_template('admin/admin_login.html')
+    return render_template('admin/admin_login.html')
+@app.route("/admin_signup")
+def admin_signup():
+    if request.method == 'POST':
+        fname = request.form['fname']
+        lname = request.form['lname']
+        phone = request.form['phone']
+        email = request.form['email']
+        password = request.form['password']
+        rep_pass = request.form['repeat_pass']
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        # Check first whether there is an already existing account
+        cursor.execute("select * from admins where email = %s ", email)
+        if cursor.rowcount > 0:
+            flash("Email already exists", "warning")
+            return render_template('admins/admin_signup.html')
+        else:
+            # if there is no existing account, check whether the two passwords match
+            if password == rep_pass:
+                #     insert the records to the users tables
+                cursor.execute(
+                    "insert into clients(first_name,last_name,email,number,password) values (%s,%s,%s,%s,%s)",
+                    (fname, lname, email, phone, password))
+                # save records
+                conn.commit()
+                flash("Admin signed up successfully", "success")
+                return render_template('admin/admin_signup.html', )
+                # if passwords do not match display the following message
+            elif password != rep_pass:
+                flash("Passwords do not match", "danger")
+                return render_template('admin/admin_signup.html')
+            else:
+                flash("Error occurred please try again", "info")
+                return render_template('admin/admin_signup.html')
+    else:
+        return render_template('admin/admin_signup.html')
