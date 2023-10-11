@@ -5,6 +5,7 @@
     <title>Deliveries</title>
 </head>
 <body>
+{%include 'staff/rider/rider_nav.html'%}
 <h3 class="jumbotron">Deliveries</h3>
 <section class="container">
     <div>
@@ -23,14 +24,14 @@
             <tr>
                 <form action="/mpesa_payment" method="post">
                     <td>{{row [1]}}</td>
-                    <td>{{row [3]}}</td>
+                    <td>{{row [4]}}</td>
                     <td>{{total_sum}}</td>
-                    <td>{{row [9]}}</td>
-                    <td>{{row [5]}}</td>
-                    <td><input type="number" name="phone" value="{{row [4]}}"></td>
+                    <td>{{row [3]}}</td>
+                    <td>{{row [10]}}</td>
+                    <td><input type="number" name="phone" value="{{row [5]}}"></td>
                     <td>
                         <button type="submit" class="btn btn-success">PAY</button>
-                        <a href=""><button class="btn btn-info">Complete order</button></a>
+                        <a href="/complete/{{row [1]}}"><button class="btn btn-info" type="button">Complete order</button></a>
                     </td>
                 </form>
             </tr>
