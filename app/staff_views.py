@@ -65,25 +65,33 @@ def deliveries():
         return redirect("/staff_login")
 @app.route("/inhouse_orders")
 def food_orders():
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    cursor.execute("select * from inhouse_orders group by order_id")
-    rows = cursor.fetchall()
-    return render_template("staff/kitchen/inhouse_orders.html", rows=rows)
+    if 'order_id' in session:
+        session.pop('order_id', None)
+        return redirect("/inhouse_orders")
+    else:
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("select * from inhouse_orders group by order_id")
+        rows = cursor.fetchall()
+        return render_template("staff/kitchen/inhouse_orders.html", rows=rows)
 
 @app.route("/takeaway_orders")
 def takeaway_orders():
-    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                           password=app.config["DB_PASSWORD"],
-                           database=app.config["DB_NAME"])
-    cursor = conn.cursor()
-    cursor.execute("select * from takeaway_orders group by order_id")
-    rows = cursor.fetchall()
-    cursor.execute("select * from employees where category = 'rider' ")
-    rider = cursor.fetchall()
-    return render_template("staff/kitchen/takeaway_orders.html", rows=rows, rider=rider)
+    if "order_id" in session:
+        session.pop('order_id',None)
+        return redirect("/takeaway_orders")
+    else:
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("select * from takeaway_orders group by order_id")
+        rows = cursor.fetchall()
+        cursor.execute("select * from employees where category = 'rider' ")
+        rider = cursor.fetchall()
+        return render_template("staff/kitchen/takeaway_orders.html", rows=rows, rider=rider)
 
 @app.route("/view/<order_id>")
 def view(order_id):
@@ -94,11 +102,15 @@ def view(order_id):
     cursor.execute("select * from inhouse_orders where order_id = %s", order_id)
     if cursor.rowcount > 0:
         rows = cursor.fetchall()
+        for row in rows:
+            session['order_id'] = row[1]
         return render_template("staff/kitchen/order_view.html", rows=rows)
     elif cursor.rowcount == 0:
         cursor.execute("select * from takeaway_orders where order_id = %s", order_id)
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
+            for row in rows:
+                session['order_id'] = row[1]
             return render_template("staff/kitchen/order_view.html", rows=rows)
         else:
             flash("No orders by that ID, try again", "warning")
@@ -120,3 +132,21 @@ def assign_rider(order_id):
             conn.commit()
             flash("Rider has been assigned successfully", "info")
             return redirect("/takeaway_orders")
+
+@app.route("/done_prepping/<order_id>", methods=['POST','GET'])
+def done_prepping(order_id):
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from inhouse_orders where order_id = %s", order_id)
+    if cursor.rowcount > 0:
+        cursor.execute("update inhouse_orders set status = %s where order_id = %s ", ("On its way", order_id))
+        conn.commit()
+        flash("Status has been changed successfully", "info")
+        return redirect(f"/view/{order_id}")
+    elif cursor.rowcount == 0:
+        cursor.execute("update takeaway_orders set status = %s where order_id = %s ", ("On its way", order_id))
+        conn.commit()
+        flash("Status has been changed successfully", "info")
+        return redirect(f"/view/{order_id}")

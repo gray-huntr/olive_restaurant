@@ -10,6 +10,7 @@
     <div class="container">
         <!--    function to display success or error messages-->
             {% include 'flash_message.html'%}
+            <a href="/done_prepping/{{session['order_id']}}"><button class="btn btn-success">Done preparing</button></a>
             <table class="table table-striped">
             <tr class="bg-dark text-white">
                 <td>NAME OF FOOD/DRINK</td>
