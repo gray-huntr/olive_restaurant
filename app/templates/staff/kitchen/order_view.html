@@ -12,14 +12,12 @@
             {% include 'flash_message.html'%}
             <table class="table table-striped">
             <tr class="bg-dark text-white">
-                <td>ORDER ID</td>
-                <td>NAME</td>
+                <td>NAME OF FOOD/DRINK</td>
                 <td>QUANTITY</td>
                 <td>STATUS</td>
             </tr>
             {%for row in rows%}
             <tr>
-                <td>{{row [1]}}</td>
                 <td>{{row [2]}}</td>
                 <td>{{row [7]}}</td>
                 <td>{{row [3]}}</td>

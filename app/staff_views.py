@@ -81,7 +81,9 @@ def takeaway_orders():
     cursor = conn.cursor()
     cursor.execute("select * from takeaway_orders group by order_id")
     rows = cursor.fetchall()
-    return render_template("staff/kitchen/takeaway_orders.html", rows=rows)
+    cursor.execute("select * from employees where category = 'rider' ")
+    rider = cursor.fetchall()
+    return render_template("staff/kitchen/takeaway_orders.html", rows=rows, rider=rider)
 
 @app.route("/view/<order_id>")
 def view(order_id):
@@ -101,3 +103,20 @@ def view(order_id):
         else:
             flash("No orders by that ID, try again", "warning")
             return render_template("staff/kitchen/order_view.html")
+
+@app.route("/assign_rider/<order_id>", methods=['POST','GET'])
+def assign_rider(order_id):
+    if request.method == 'POST':
+        name = request.form['name']
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        if name == "":
+            flash("You have not selected a rider try again", "danger")
+            return redirect("/takeaway_orders")
+        else:
+            cursor.execute("update takeaway_orders set Delivery_person = %s where order_id = %s ", (name,order_id))
+            conn.commit()
+            flash("Rider has been assigned successfully", "info")
+            return redirect("/takeaway_orders")
