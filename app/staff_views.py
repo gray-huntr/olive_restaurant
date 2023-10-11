@@ -230,7 +230,7 @@ def logout_staff():
 
 # Routes for the admins
 
-@app.route("/admin_login")
+@app.route("/admin_login", methods=['POST','GET'])
 def admin_login():
     if request.method == "POST":
         email = request.form['email']
@@ -245,13 +245,13 @@ def admin_login():
         cursor.execute("select * from admins where email =%s and password=%s", (email, password))
         # if cursor.rowcount == 1:
         if cursor.rowcount == 1:
-            session['email'] = email
+            session['admin'] = email
             return redirect('/admin_portal')
         elif cursor.rowcount == 0:
             flash("User does not exist or incorrect password", "warning")
             return render_template('admin/admin_login.html')
     return render_template('admin/admin_login.html')
-@app.route("/admin_signup")
+@app.route("/admin_signup", methods=['POST','GET'])
 def admin_signup():
     if request.method == 'POST':
         fname = request.form['fname']
@@ -269,13 +269,13 @@ def admin_signup():
         cursor.execute("select * from admins where email = %s ", email)
         if cursor.rowcount > 0:
             flash("Email already exists", "warning")
-            return render_template('admins/admin_signup.html')
+            return render_template('admin/admin_signup.html')
         else:
             # if there is no existing account, check whether the two passwords match
             if password == rep_pass:
                 #     insert the records to the users tables
                 cursor.execute(
-                    "insert into clients(first_name,last_name,email,number,password) values (%s,%s,%s,%s,%s)",
+                    "insert into admins(first_name,last_name,email,number,password) values (%s,%s,%s,%s,%s)",
                     (fname, lname, email, phone, password))
                 # save records
                 conn.commit()
@@ -290,3 +290,7 @@ def admin_signup():
                 return render_template('admin/admin_signup.html')
     else:
         return render_template('admin/admin_signup.html')
+
+@app.route("/admin_portal")
+def admin_portal():
+    return render_template("admin/admin_portal.html")
