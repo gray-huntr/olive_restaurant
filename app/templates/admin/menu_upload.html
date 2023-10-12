@@ -5,8 +5,9 @@
     <title>Menu upload</title>
 </head>
 <body>
+{%include 'admin/admin_nav.html'%}
     <h3 class="jumbotron">Menu uploads</h3>
-    <div class="container">
+    <div class="container col-md-4">
         <!--    function to display success or error messages-->
         <b>{% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -21,21 +22,21 @@
 <!--        File selecting-->
         <form action="/menu_upload" enctype="multipart/form-data" method="post">
             <label> Select image to upload</label> <br>
-            <input type="file" name="file"> <br>
-            <label>Name</label><br>
-            <input type="text" name="name" required placeholder="Input name "><br>
-            <label>Price</label> <br>
-            <input type="number" name="price" required placeholder="Input price"><br><br>
+            <input type="file" name="file" > <br>
+            <label>Name</label>
+            <input type="text" name="name" required placeholder="Input name " class="form-control">
+            <label>Price</label>
+            <input type="number" name="price" required placeholder="Input price" class="form-control">
             <label>Select category</label>
-            <select name="category">
+            <select name="category" class="form-control">
                 <option value=""></option>
                 <option value="Food">Food</option>
                 <option value="Drinks">Drinks</option>
                 <option value="Appetizer">Appetizer</option>
                 <option value="Special">Special</option>
-            </select><br>
+            </select>
             <label>Description</label><br>
-            <textarea name="description" cols="30" rows="5" placeholder="Enter description here..."></textarea><br>
+            <textarea class="form-control" name="description" cols="30" rows="5" placeholder="Enter description here..."></textarea><br>
             <button type="submit" class="btn btn-primary">SUBMIT</button>
         </form>
     </div>
