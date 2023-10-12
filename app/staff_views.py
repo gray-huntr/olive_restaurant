@@ -329,3 +329,26 @@ def new_employee():
             return render_template('admin/new_employee.html')
     else:
         return render_template('admin/new_employee.html')
+
+@app.route("/employee_records", methods=['POST','GET'])
+def employee_records():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        id = request.form['id']
+        fname = request.form['fname']
+        lname = request.form['lname']
+        number = request.form['number']
+        email = request.form['email']
+        category = request.form['category']
+        cursor.execute("update employees set first_name = %s, last_name = %s, number = %s, email = %s, category=%s "
+                       "where employee_id = %s ", (fname,lname,number,email,category,id))
+        conn.commit()
+        flash("Records updated successfully", "success")
+        return redirect("/employee_records")
+    else:
+        cursor.execute("select * from employees")
+        rows = cursor.fetchall()
+        return render_template("admin/employee_records.html", rows=rows)
