@@ -207,4 +207,10 @@ def adm_takeaway_orders():
     rows = cursor.fetchall()
     return render_template("admin/adm_takeaway_orders.html", rows=rows)
 
+@app.route("/logout_admin")
+def logout_staff():
+    session.pop('admin', None)
+    return redirect('/admin_login')
+
+
 
