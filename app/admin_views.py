@@ -208,7 +208,7 @@ def adm_takeaway_orders():
     return render_template("admin/adm_takeaway_orders.html", rows=rows)
 
 @app.route("/logout_admin")
-def logout_staff():
+def logout_admin():
     session.pop('admin', None)
     return redirect('/admin_login')
 
