@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include 'head.html'%}
+    <title>In house orders</title>
+</head>
+<body>
+<h3 class="jumbotron">In house orders</h3>
+<div class="container">
+    <table class="table table-striped">
+        <tr class="bg-dark text-white">
+            <th>ORDER ID</th>
+            <th>STATUS</th>
+            <th>DATE</th>
+            <th>TIME</th>
+            <th>Served by</th>
+        </tr>
+        {% for row in rows%}
+        <tr>
+            <td>{{row [1]}}</td>
+            <td>{{row [3]}}</td>
+            <td>{{row [9]}}</td>
+            <td>{{row [10]}}</td>
+            <td>{{row [11]}}</td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+
+</body>
+</html>
