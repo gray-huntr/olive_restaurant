@@ -8,8 +8,6 @@ import pydataman as pd
 import requests
 import datetime
 import base64
-import jsonify
-import subprocess
 from requests.auth import HTTPBasicAuth
 
 
@@ -451,6 +449,7 @@ def order():
         if 'duid' and 'table' in session:
             all_total_price = 0
             all_total_quantity = 0
+            ordercode = receiptcode()
             for key, value in session['cart_item'].items():
                 individual_quantity = 1
                 individual_total_price = session['cart_item'][key]['total_price']
@@ -477,15 +476,15 @@ def order():
                     cursor = conn.cursor()
                     # insert the records to the in-house orders tables
                     cursor.execute(
-                        "insert into inhouse_orders(name,device_uid,table_number,cost,quantity,total) "
-                        "values('{}','{}','{}','{}','{}','{}')".format(name, device_no, table_no, cost, qtty, total))
+                        "insert into inhouse_orders(order_id,name,device_uid,table_number,cost,quantity,total) "
+                        "values('{}','{}','{}','{}','{}','{}','{}')".format(
+                            ordercode, name, device_no, table_no, cost, qtty, total))
                     cursor.execute("update tables set status = 'in use' where table_id = %s", session['table'])
                     conn.commit()
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            flash("Your order(s) have been placed successfully", "success")
-            return redirect('/my_orders')
+            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
         elif 'email' in session:
             all_total_price = 0
             all_total_quantity = 0
@@ -529,13 +528,13 @@ def order():
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            flash("Your order(s) have been placed successfully", "success")
-            return redirect('/my_orders')
+            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
 
 
 # else:
 #     session['page'] = "checkout"
 #     return redirect ('/users_login')
+
 # route for clients to view their orders
 @app.route("/my_orders")
 def my_orders():
@@ -621,14 +620,14 @@ def mpesa_payment():
 
         response = requests.post(url, json=payload, headers=headers)
         print(phone)
-        print(response.text)
+        print (response.text)
         session.pop('request', None)
         if 'rider' in session:
             flash("Tell client to complete order on phone", "info")
             return redirect('/deliveries')
         else:
             flash("Complete payment on phone", "info")
-            return redirect('/food_menu')
+            return redirect('/my_orders')
     else:
         return redirect('/my_orders')
 
