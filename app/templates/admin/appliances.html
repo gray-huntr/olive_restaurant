@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%include 'head.html'%}
+    <title>Appliances</title>
+</head>
+<body>
+{% include 'admin/admin_nav.html' %}
+<h4 class="jumbotron">Tables and Tablets</h4>
+    <div class="container">
+        <div class="text-center">{% include 'flash_message.html' %}</div>
+        <div class="row">
+            <div class="col-md-4">
+                <form action="/appliances" method="post">
+                    <div class="form-group border p-3 rounded bg-dark text-white">
+                        <label for="id">Input Table/Device ID</label>
+                        <input type="text" class="form-control" id="id" name="id" required>
+                        <label for="category">Select Category</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="">Select category</option>
+                            <option value="table">Table</option>
+                            <option value="device">Device</option>
+                        </select> <br>
+                        <button type="submit" class="btn btn-outline-danger btn-block">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-4">
+                <h5>Tables</h5>
+                <table class="table table-bordered">
+                    <tr class="bg-dark text-white">
+                        <th>Table Id</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for row in tables %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <div class="col-md-4">
+                <h5>Tablets</h5>
+                <table class="table table-bordered">
+                    <tr class="bg-dark text-white">
+                        <th>Tablet Id</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for row in tablets %}
+                    <tr>
+                        <td>{{ row[0] }}</td>
+                        <td>{{ row[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

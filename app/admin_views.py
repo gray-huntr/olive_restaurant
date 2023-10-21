@@ -26,7 +26,7 @@ def admin_login():
         # if cursor.rowcount == 1:
         if cursor.rowcount == 1:
             session['admin'] = email
-            return redirect('/admin_portal')
+            return redirect('/menu_upload')
         elif cursor.rowcount == 0:
             flash("User does not exist or incorrect password", "warning")
             return render_template('admin/admin_login.html')
@@ -206,6 +206,52 @@ def adm_takeaway_orders():
     cursor.execute("select * from takeaway_orders")
     rows = cursor.fetchall()
     return render_template("admin/adm_takeaway_orders.html", rows=rows)
+
+
+@app.route("/appliances", methods=['POST','GET'])
+def appliances():
+    if 'admin' in session:
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        if request.method == 'POST':
+            id = request.form['id']
+            category = request.form['category']
+
+            if category == 'table':
+                cursor.execute("select * from tables where table_id = %s", id)
+                if cursor. rowcount > 0:
+                    flash("The id you have entered already exists", "warning")
+                    return redirect("/appliances")
+                else:
+                    cursor.execute("insert into tables(table_id) values (%s)",id)
+                    conn.commit()
+                    flash("Device added succesfully", "success")
+                    return redirect("/appliances")
+            elif category == 'device':
+                cursor.execute("select * from device where uid = %s", id)
+                if cursor.rowcount > 0:
+                    flash("The id you have entered already exists", "warning")
+                    return redirect("/appliances")
+                else:
+                    cursor.execute("insert into device(uid) values (%s)", id)
+                    conn.commit()
+                    flash("Device added succesfully", "success")
+                    return redirect("/appliances")
+            else:
+                flash("Select the correct category", "danger")
+                return redirect("/appliances")
+        else:
+            cursor.execute("select * from tables")
+            tables = cursor.fetchall()
+            cursor.execute("select * from device")
+            tablets = cursor.fetchall()
+            return render_template("admin/appliances.html", tables=tables, tablets=tablets)
+    else:
+        flash("Please log in first", "info")
+        return redirect("/admin_login")
+
 
 @app.route("/logout_admin")
 def logout_admin():

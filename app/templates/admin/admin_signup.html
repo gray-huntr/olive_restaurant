@@ -7,28 +7,41 @@
 <body>
 {%include 'admin/admin_nav.html'%}
 <h3 class="jumbotron">Admin Sign up</h3>
-<section class="">
-    <div class="container col-md-4 text-white">
-        {%include 'flash_message.html'%}
-        <form action="/admin_signup" method="post" style="background-color: black;">
-            <fieldset class="form-group border p-3">
-                <label>First name</label><br>
-                <input class="form-control" type="text" placeholder="Enter first name" name="fname" required>
-                <label>Last name</label><br>
-                <input class="form-control" type="text" placeholder="Enter last name" name="lname" required>
-                <label>Email address</label><br>
-                <input class="form-control" type="email" placeholder="Enter email address" name="email" required>
-                <label>Phone number</label><br>
-                <input class="form-control" type="number" placeholder="Enter Phone number" name="phone" required>
-                <label>Password</label><br>
-                <input class="form-control" type="password" placeholder="Enter password" name="password" required>
-                <label>Repeat password</label><br>
-                <input class="form-control" type="password" placeholder="Repeat password" name="repeat_pass" required><br>
-                <button class="btn btn-outline-danger" type="submit">Sign up</button><br><br>
-            </fieldset>
-        </form>
+<div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                {% include 'flash_message.html' %}
+                <form action="/admin_signup" method="post" class="bg-dark text-white p-4 rounded">
+                    <div class="form-group">
+                        <label for="fname">First Name</label>
+                        <input type="text" class="form-control" id="fname" placeholder="Enter first name" name="fname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lname">Last Name</label>
+                        <input type="text" class="form-control" id="lname" placeholder="Enter last name" name="lname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email address" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="number" class="form-control" id="phone" placeholder="Enter phone number" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="repeat_pass">Repeat Password</label>
+                        <input type="password" class="form-control" id="repeat_pass" placeholder="Repeat password" name="repeat_pass" required>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger btn-block">Sign Up</button>
+                </form>
+            </div>
+        </div>
     </div>
-</section>
 
 </body>
 </html>
+

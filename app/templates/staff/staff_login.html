@@ -6,22 +6,27 @@
 </head>
 <body>
 <h3 class="jumbotron">Staff login</h3>
- <div class=" container col-md-3">
-        <!--    function to display success or error messages-->
-        {% include 'flash_message.html'%}
-        <form action="/staff_login" method="post">
-            <fieldset class="form-group border p-3">
-                <label>Employee ID</label> <br>
-                <input type="text" name="emp_id" placeholder="Input employee id" required class="form-control">                <label>Select category</label><br>
-                <select name="category" id="" class="form-control">
-                    <option value=""></option>
-                    <option value="Service_staff">Service staff</option>
-                    <option value="Kitchen_staff">Kitchen staff</option>
-                    <option value="Rider">Rider</option>
-                </select><br>
-                <button type="submit" class="btn btn-outline-danger">LOGIN</button>
-            </fieldset>
-        </form>
+ <div class="container col-md-4">
+        <div class="text-center">
+            <!-- Function to display success or error messages -->
+            {% include 'flash_message.html' %}
+            <form action="/staff_login" method="post" class="bg-dark text-white p-4 rounded">
+                <div class="form-group">
+                    <label for="emp_id">Employee ID</label>
+                    <input type="text" class="form-control" id="emp_id" name="emp_id" placeholder="Input employee ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Select Category</label>
+                    <select class="form-control" id="category" name="category">
+                        <option value="">Select category</option>
+                        <option value="Service_staff">Service staff</option>
+                        <option value="Kitchen_staff">Kitchen staff</option>
+                        <option value="Rider">Rider</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger btn-block">Login</button>
+            </form>
+        </div>
     </div>
 
 </body>

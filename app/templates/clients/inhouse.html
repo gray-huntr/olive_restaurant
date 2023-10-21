@@ -5,20 +5,26 @@
     <title>Inhouse orders</title>
 </head>
 <body>
-    <h3 class="jumbotron">Inhouse Ordering</h3>
-    <div class="text-center">
-        <!--    function to display success or error messages-->
-        {% include 'flash_message.html'%}
-        <form action="/inhouse" method="post">
-            <label>Device UID</label> <br>
-            <input type="text" name="UID" placeholder="Input device UID" required> <br>
-            <label>Table number</label> <br>
-            <input type="text" name="tbl_number" placeholder="Input table number" required> <br>
-            <label>Author code</label> <br>
-            <input type="text" name="employee_id" placeholder="Input author code" required> <br> <br>
-            <button type="submit">SUBMIT</button>
-        </form>
+<h3 class="jumbotron text-center">Inhouse Ordering</h3>
+    <div class="container justified-content-center col-md-4">
+        <div class="text-center">
+            {% include 'flash_message.html' %}
+            <form action="/inhouse" method="post" class="bg-dark text-white p-4 rounded">
+                <div class="form-group">
+                    <label for="UID">Device UID</label>
+                    <input type="text" class="form-control" id="UID" name="UID" placeholder="Input device UID" required>
+                </div>
+                <div class="form-group">
+                    <label for="tbl_number">Table Number</label>
+                    <input type="text" class="form-control" id="tbl_number" name="tbl_number" placeholder="Input table number" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee_id">Author Code</label>
+                    <input type="text" class="form-control" id="employee_id" name="employee_id" placeholder="Input author code" required>
+                </div>
+                <button type="submit" class="btn btn-outline-danger btn-block">Submit</button>
+            </form>
+        </div>
     </div>
-
 </body>
 </html>

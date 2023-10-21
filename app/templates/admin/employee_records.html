@@ -10,8 +10,8 @@
 
 <div class="container">
     {% include 'flash_message.html'%}
-    <table class="table table-striped">
-        <tr>
+    <table class="table table-striped table-bordered">
+        <tr class="text-white bg-dark">
             <th>Employee ID</th>
             <th>First name</th>
             <th>Last name</th>
@@ -24,12 +24,12 @@
         <form action="/employee_records" method="post">
         <tr>
                 <td><input type="hidden" name="id" value="{{row [0]}}">{{row [0]}}</td>
-                <td><input type="text" value="{{row [1]}}" name="fname"></td>
-                <td><input type="text" value="{{row [2]}}" name="lname"></td>
-                <td><input type="number" value="{{row [3]}}" name="number"></td>
-                <td><input type="text" value="{{row [4]}}" name="email"></td>
+                <td><input type="text" value="{{row [1]}}" name="fname" class="form-control"></td>
+                <td><input type="text" value="{{row [2]}}" name="lname" class="form-control"></td>
+                <td><input type="number" value="{{row [3]}}" name="number" class="form-control"></td>
+                <td><input type="text" value="{{row [4]}}" name="email" class="form-control"></td>
                 <td>
-                    <select name="category" id="">
+                    <select name="category" id="" class="form-control">
                         <option value="{{row [5]}}">{{row [5]}}</option>
                         <option value="Service_staff">Service staff</option>
                         <option value="Kitchen_staff">Kitchen staff</option>
@@ -37,7 +37,7 @@
                     </select>
                 </td>
                 <td>
-                    <button type="submit" class="btn btn-danger" >Update</button>
+                    <button type="submit" class="btn btn-success" >Update</button>
                 </td>
         </tr>
         </form>

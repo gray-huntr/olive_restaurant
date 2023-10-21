@@ -451,7 +451,6 @@ def order():
         if 'duid' and 'table' in session:
             all_total_price = 0
             all_total_quantity = 0
-            ordercode = receiptcode()
             for key, value in session['cart_item'].items():
                 individual_quantity = 1
                 individual_total_price = session['cart_item'][key]['total_price']
@@ -478,15 +477,15 @@ def order():
                     cursor = conn.cursor()
                     # insert the records to the in-house orders tables
                     cursor.execute(
-                        "insert into inhouse_orders(order_id,name,device_uid,table_number,cost,quantity,total) "
-                        "values('{}','{}','{}','{}','{}','{}','{}')".format(
-                            ordercode, name, device_no, table_no, cost, qtty, total))
+                        "insert into inhouse_orders(name,device_uid,table_number,cost,quantity,total) "
+                        "values('{}','{}','{}','{}','{}','{}')".format(name, device_no, table_no, cost, qtty, total))
                     cursor.execute("update tables set status = 'in use' where table_id = %s", session['table'])
                     conn.commit()
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+            flash("Your order(s) have been placed successfully", "success")
+            return redirect('/my_orders')
         elif 'email' in session:
             all_total_price = 0
             all_total_quantity = 0
@@ -530,13 +529,13 @@ def order():
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+            flash("Your order(s) have been placed successfully", "success")
+            return redirect('/my_orders')
 
 
 # else:
 #     session['page'] = "checkout"
 #     return redirect ('/users_login')
-
 # route for clients to view their orders
 @app.route("/my_orders")
 def my_orders():
@@ -563,78 +562,75 @@ def my_orders():
 
 @app.route('/mpesa_payment', methods = ['POST','GET'])
 def mpesa_payment():
-    if 'duid' and 'table' and 'rider' in session:
-        # conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-        #                        password=app.config["DB_PASSWORD"],
-        #                        database=app.config["DB_NAME"])
-        # cursor = conn.cursor()
-        # cursor.execute("SELECT * FROM clients where username = %s", (session['username']))
-        # # AFter executing the query above, get all rows
-        # number = cursor.fetchall()
-        # session['request'] = 'accept'
+    # conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+    #                        password=app.config["DB_PASSWORD"],
+    #                        database=app.config["DB_NAME"])
+    # cursor = conn.cursor()
+    # cursor.execute("SELECT * FROM clients where username = %s", (session['username']))
+    # # AFter executing the query above, get all rows
+    # number = cursor.fetchall()
+    # session['request'] = 'accept'
 
-        if request.method == 'POST':
-            phone = str(int(request.form['phone']))
-            phone = str("254") + phone
-            # account = request.form['account']
-            # amount = str(request.form['amount'])
+    if request.method == 'POST':
+        phone = str(int(request.form['phone']))
+        phone = str("254") + phone
+        # account = request.form['account']
+        # amount = str(request.form['amount'])
 
-            #GENERATING THE ACCESS TOKEN
-            consumer_key = "0aDsNA5rkQiAFJY594KxPtDkAfyZp51s"
-            consumer_secret = "b96yLzkGAP5Lt44j"
+        #GENERATING THE ACCESS TOKEN
+        consumer_key = "0aDsNA5rkQiAFJY594KxPtDkAfyZp51s"
+        consumer_secret = "b96yLzkGAP5Lt44j"
 
-            api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials" #AUTH URL
-            r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
+        api_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials" #AUTH URL
+        r = requests.get(api_URL, auth=HTTPBasicAuth(consumer_key, consumer_secret))
 
-            data = r.json()
-            access_token = "Bearer" + ' ' + data['access_token']
+        data = r.json()
+        access_token = "Bearer" + ' ' + data['access_token']
 
-            #  GETTING THE PASSWORD
-            timestamp = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
-            passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
-            business_short_code = "174379"
-            data = business_short_code + passkey + timestamp
-            encoded = base64.b64encode(data.encode())
-            password = encoded.decode('utf-8')
+        #  GETTING THE PASSWORD
+        timestamp = datetime.datetime.today().strftime('%Y%m%d%H%M%S')
+        passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
+        business_short_code = "174379"
+        data = business_short_code + passkey + timestamp
+        encoded = base64.b64encode(data.encode())
+        password = encoded.decode('utf-8')
 
 
-            # BODY OR PAYLOAD
-            payload = {
-                "BusinessShortCode": "174379",
-                "Password": "{}".format(password),
-                "Timestamp": "{}".format(timestamp),
-                "TransactionType": "CustomerPayBillOnline",
-                "Amount": "1", #use 1 when testing
-                "PartyA": phone, #phone number that is paying
-                "PartyB": "174379", #paybill number
-                "PhoneNumber": phone, #phone number that is paying
-                "CallBackURL": "https://0b97-196-202-162-46.ngrok.io/callback" ,
-                "AccountReference": "Olive restaurant",
-                "TransactionDesc": "account"
-            }
+        # BODY OR PAYLOAD
+        payload = {
+            "BusinessShortCode": "174379",
+            "Password": "{}".format(password),
+            "Timestamp": "{}".format(timestamp),
+            "TransactionType": "CustomerPayBillOnline",
+            "Amount": "1", #use 1 when testing
+            "PartyA": phone, #phone number that is paying
+            "PartyB": "174379", #paybill number
+            "PhoneNumber": phone, #phone number that is paying
+            "CallBackURL": "https://0b97-196-202-162-46.ngrok.io/callback" ,
+            "AccountReference": "Olive restaurant",
+            "TransactionDesc": "account"
+        }
 
-            # POPULATING THE HTTP HEADER
-            headers = {
-                "Authorization": access_token,
-                "Content-Type": "application/json"
-            }
+        # POPULATING THE HTTP HEADER
+        headers = {
+            "Authorization": access_token,
+            "Content-Type": "application/json"
+        }
 
-            url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest" #C2B URL
+        url = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest" #C2B URL
 
-            response = requests.post(url, json=payload, headers=headers)
-            print(phone)
-            print (response.text)
-            session.pop('request', None)
-            if 'rider' in session:
-                flash("Tell client to complete order on phone", "info")
-                return redirect('/deliveries')
-            else:
-                flash("Complete payment on phone", "info")
-                return redirect('/my_orders')
+        response = requests.post(url, json=payload, headers=headers)
+        print(phone)
+        print(response.text)
+        session.pop('request', None)
+        if 'rider' in session:
+            flash("Tell client to complete order on phone", "info")
+            return redirect('/deliveries')
         else:
-            return redirect('/my_orders')
+            flash("Complete payment on phone", "info")
+            return redirect('/food_menu')
     else:
-        return redirect('/order_type')
+        return redirect('/my_orders')
 
 # @app.route("/callback")
 # def callback():

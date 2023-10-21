@@ -6,20 +6,23 @@
 </head>
 <body>
 <h3 class="jumbotron">Admin Login</h3>
-<section>
-    <div class="container col-md-4 text-white" >
-        {%include 'flash_message.html'%}
-        <form action="/admin_login" method="post" style="background-color: black;">
-            <fieldset class="form-group border p-3">
-                <label>Enter email</label><br>
-                <input type="text" name="email" class="form-control" required placeholder="Enter email">
-                <label>Enter password</label><br>
-                <input type="password" name="password" class="form-control" required placeholder="Enter password"><br>
-                <button type="submit" class="btn btn-outline-danger">LOGIN</button><br><br>
-            </fieldset>
-        </form>
+<div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                {% include 'flash_message.html' %}
+                <form action="/admin_login" method="post" class="bg-dark text-white p-4 rounded">
+                    <div class="form-group">
+                        <label for="email">Enter Email</label>
+                        <input type="text" class="form-control" id="email" name="email" required placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Enter Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger btn-block">Login</button>
+                </form>
+            </div>
+        </div>
     </div>
-</section>
-
 </body>
 </html>

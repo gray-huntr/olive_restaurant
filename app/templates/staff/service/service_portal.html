@@ -12,25 +12,19 @@
         {% include 'flash_message.html'%}
         <table class="table table-striped">
         <tr class="bg-dark text-white">
-            <th>ORDER ID</th>
+            <th>TABLE NUMBER</th>
             <th>STATUS</th>
             <th>TIME</th>
-            <th>TABLE NUMBER</th>
             <th>ACTION</th>
         </tr>
         {% for row in rows%}
         <tr>
-            <td>{{row [1]}}</td>
+            <td>{{row [5]}}</td>
             <td>{{row [3]}}</td>
             <td>{{row [10]}}</td>
-            <td>{{row [5]}}</td>
             <td>
-                <a href="/view/{{row [1]}}"><button class="btn btn-info">View order</button></a>
-                {%if row [3] == 'Complete'%}
-                <a href="/complete/{{row [1]}}"><button class="btn btn-primary">Print receipt</button></a>
-                {%else%}
-                <a href="/complete/{{row [1]}}"><button class="btn btn-success">Complete order</button></a>
-                {%endif%}
+                <a href="/view/{{row [5]}}"><button class="btn btn-info">View order</button></a>
+                <a href="/complete/{{row [5]}}"><button class="btn btn-success">Complete order</button></a>
             </td>
         </tr>
         {%endfor%}
