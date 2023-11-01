@@ -23,6 +23,31 @@ def index():
 def order_type():
     return render_template('clients/order_type.html')
 
+@app.route("/reservations", methods=['POST','GET'])
+def reservations():
+    if request.method == 'POST':
+        name = request.form['name']
+        number = request.form['number']
+        date = request.form['date']
+        time = request.form['time']
+        in_attendance = request.form['in_attendance']
+
+        #  connect to database
+        conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                               password=app.config["DB_PASSWORD"],
+                               database=app.config["DB_NAME"])
+        cursor = conn.cursor()
+        cursor.execute("insert into reservations(in_attendance, name, number, date, time) values (%s,%s,%s,%s,%s)",
+                       (in_attendance, name, number, date, time))
+        conn.commit()
+        flash("Your reservation has been received,")
+        return  redirect("/reservations")
+    else:
+        return render_template("clients/reservations")
+
+
+
+
 
 @app.route("/inhouse", methods=['POST', 'GET'])
 def inhouse():
