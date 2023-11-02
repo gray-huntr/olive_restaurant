@@ -251,6 +251,33 @@ def complete_orders():
         flash("Please login first", "info")
         return redirect("/staff_login")
 
+@app.route("/reservations_view", methods = ['POST','GET'])
+def reservations_view():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        number = request.form['number']
+
+        cursor.execute("select * from reservations where number = %s and date >= current_date ", number)
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/service/reservations.html", rows = rows)
+        elif cursor.rowcount == 0:
+            flash(f"There is no reservation under {number} for today or any day ahead", "warning")
+            return redirect("/reservations_view")
+    else:
+        cursor.execute("select * from reservations where date >= current_date")
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("staff/service/reservations.html", rows = rows)
+        elif cursor.rowcount == 0:
+            flash("There are no reservations for today", "info")
+            return render_template("/staff/service/reservations.html")
+
+
+
 @app.route("/logout_staff")
 def logout_staff():
     if 'rider' in session:

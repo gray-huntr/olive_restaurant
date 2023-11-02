@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {%include 'head.html'%}
+    <title>Reservations view</title>
+</head>
+<body>
+{%include 'staff/service/service_nav.html'%}
+<h3 class="jumbotron">Reservations</h3>
+<div class="container">
+    {%include 'flash_message.html'%}
+    <form action="/reservations_view" method="post">
+        <input type="number" name="number" required placeholder="Search phone number">
+        <button class="btn btn-outline-danger ml-2">Search</button>
+        <a href="/reservations_view" class="btn btn-outline-success">Reset</a>
+    </form>
+    <br>
+    <table class="table">
+        <tr>
+            <th>Reservation id</th>
+            <th>In attendance</th>
+            <th>Name</th>
+            <th>Number</th>
+            <th>Date</th>
+            <th>time</th>
+        </tr>
+        {%for row in rows%}
+        <tr>
+            <td>{{row [0]}}</td>
+            <td>{{row [1]}}</td>
+            <td>{{row [2]}}</td>
+            <td>{{row [3]}}</td>
+            <td>{{row [4]}}</td>
+            <td>{{row [5]}}</td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+</body>
+</html>
