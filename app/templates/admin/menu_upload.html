@@ -6,11 +6,11 @@
 </head>
 <body>
 {% include 'admin/admin_nav.html' %}
-<h3 class="jumbotron">Menu Uploads</h3>
-    <div class="container">
+<h3 class="jumbotron">Menu</h3>
+    <div>
+        <div class="container text-center">{% include 'flash_message.html' %}</div>
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                {% include 'flash_message.html' %}<br>
+            <div class="col-md-4">
                 <form action="/menu_upload" enctype="multipart/form-data" method="post" class="bg-dark text-white p-4 rounded">
                     <div class="form-group">
                         <label for="file">Select Image to Upload</label>
@@ -31,7 +31,6 @@
                             <option value="Food">Food</option>
                             <option value="Drinks">Drinks</option>
                             <option value="Appetizer">Appetizer</option>
-                            <option value="Special">Special</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -40,6 +39,39 @@
                     </div>
                     <button type="submit" class="btn btn-outline-danger btn-block">Submit</button>
                 </form>
+            </div>
+
+            <div class="col-md-8">
+                <table class="table">
+                    <tr>
+                        <th>Menu item</th>
+                        <th>Price</th>
+                        <th>category</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                    {%for row in rows%}
+                    <tr>
+                        <form action="/menu/update" method="post">
+                            <input type="hidden" value="{{row [0]}}" name="id">
+                            <td><input type="text" value="{{row [1]}}" class="form-control" name="name"></td>
+                            <td><input type="number" value="{{row [4]}}" class="form-control" name="price"></td>
+                            <td>
+                                <select class="form-control" name="category" required>
+                                    <option value="{{row [5]}}">{{row [5]}}</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Drinks">Drinks</option>
+                                    <option value="Appetizer">Appetizer</option>
+                                </select>
+                            </td>
+                            <td><textarea name="description" cols="25" rows="3">{{row [3]}}</textarea></td>
+                            <td>
+                                <button class="btn btn-dark">Update</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {%endfor%}
+                </table>
             </div>
         </div>
     </div>

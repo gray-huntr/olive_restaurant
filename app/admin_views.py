@@ -141,6 +141,11 @@ def employee_records():
 
 @app.route("/menu_upload", methods=['POST', 'GET'])
 def menu_upload():
+    #  connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -164,11 +169,7 @@ def menu_upload():
             sql = ("insert into menu(name,picture,description,price,category) "
                    "values(%s,%s,%s,%s,%s)")
             try:
-                #  connect to database
-                conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
-                                       password=app.config["DB_PASSWORD"],
-                                       database=app.config["DB_NAME"])
-                cursor = conn.cursor()
+
                 # send to database
                 cursor.execute(sql, (name, filename, description, price, category))
                 # Save to database
@@ -184,28 +185,80 @@ def menu_upload():
             flash("Uploaded File Not Allowed", "warning")
             return redirect('/menu_upload')
     else:
-        return render_template('admin/menu_upload.html')
+        cursor.execute("select * from menu")
+        rows = cursor.fetchall()
+        return render_template('admin/menu_upload.html', rows=rows)
 
-@app.route("/adm_inhouse_orders")
+@app.route("/menu/<action>", methods=['POST','GET'])
+def menu(action):
+    #  connect to database
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if action == 'update':
+        if request.method == 'POST':
+            id = request.form['id']
+            name = request.form['name']
+            description = request.form['description']
+            price = request.form['price']
+            category = request.form['category']
+
+            cursor.execute("update menu set name = %s, description = %s, price = %s, category = %s "
+                           "where id = %s", (name,description, price, category, id))
+            conn.commit()
+            flash("Menu updated successfully", "success")
+            return redirect("/menu_upload")
+        else:
+            return redirect("/menu_upload")
+
+
+
+
+@app.route("/adm_inhouse_orders", methods=['POST','GET'])
 def adm_inhouse_orders():
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from inhouse_orders")
-    rows = cursor.fetchall()
-    return render_template("admin/adm_inhouse_orders.html", rows=rows)
+    if request.method == 'POST':
+        id = request.form['id']
+
+        cursor.execute("select * from inhouse_orders where order_id = %s group by order_id",
+                       id)
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/adm_inhouse_orders.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash(f"There is no order under the id {id}", "warning")
+            return redirect("/adm_inhouse_orders")
+    else:
+        cursor.execute("select * from inhouse_orders group by order_id")
+        rows = cursor.fetchall()
+        return render_template("admin/adm_inhouse_orders.html", rows=rows)
 
 
-@app.route("/adm_takeaway_orders")
+@app.route("/adm_takeaway_orders", methods=['POST','GET'])
 def adm_takeaway_orders():
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
-    cursor.execute("select * from takeaway_orders")
-    rows = cursor.fetchall()
-    return render_template("admin/adm_takeaway_orders.html", rows=rows)
+    if request.method == 'POST':
+        id = request.form['id']
+
+        cursor.execute("select * from takeaway_orders where order_id = %s group by order_id",
+                       id)
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/adm_takeaway_orders.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash(f"There is no order under the id {id}", "warning")
+            return redirect("/adm_takeaway_orders")
+    else:
+        cursor.execute("select * from takeaway_orders group by order_id")
+        rows = cursor.fetchall()
+        return render_template("admin/adm_takeaway_orders.html", rows=rows)
 
 
 @app.route("/appliances", methods=['POST','GET'])
