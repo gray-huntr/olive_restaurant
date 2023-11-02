@@ -2,6 +2,7 @@ import pymysql
 
 from app import app, client_views
 from flask import render_template, request, flash, redirect, session, url_for
+from fpdf import FPDF
 
 # Route for staff login
 @app.route("/staff_login", methods=['POST', 'GET'])
@@ -130,9 +131,11 @@ def view(id):
             cursor.execute("select * from takeaway_orders where order_id = %s", id)
             if cursor.rowcount > 0:
                 rows = cursor.fetchall()
+                total_sum = 0
                 for row in rows:
                     session['order_id'] = row[1]
-                return render_template("staff/kitchen/order_view.html", rows=rows)
+                    total_sum = total_sum+ row[8]
+                return render_template("staff/kitchen/order_view.html", rows=rows, total_sum=total_sum)
             else:
                 flash("No orders by that ID, try again", "warning")
                 return render_template("staff/kitchen/order_view.html")
@@ -275,6 +278,7 @@ def reservations_view():
         elif cursor.rowcount == 0:
             flash("There are no reservations for today", "info")
             return render_template("/staff/service/reservations.html")
+
 
 
 

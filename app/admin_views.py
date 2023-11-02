@@ -211,6 +211,17 @@ def menu(action):
             return redirect("/menu_upload")
         else:
             return redirect("/menu_upload")
+    elif action == "search":
+        if request.method == 'POST':
+            menuitem = request.form['menuitem']
+
+            cursor.execute("select * from menu where name like %s",('%' + menuitem + '%'))
+            if cursor.rowcount > 0:
+                rows = cursor.fetchall()
+                return render_template('admin/menu_upload.html', rows=rows)
+            elif cursor.rowcount == 0:
+                flash("There are no menu items with the given name", "info")
+                return redirect("/menu_upload")
 
 
 

@@ -55,6 +55,32 @@
             {%endfor%}
         </table>
     </div>
+    {%elif 'email' in session%}
+     {% include 'navbar.html'%}
+    <h3 class="jumbotron">Order view</h3>
+    <div class="container">
+        <!--    function to display success or error messages-->
+            {% include 'flash_message.html'%}
+            <table class="table table-striped">
+            <tr class="bg-dark text-white">
+                <td>NAME OF FOOD/DRINK</td>
+                <td>COST</td>
+                <td>QUANTITY</td>
+                <td>TOTAL</td>
+            </tr>
+            {%for row in rows%}
+            <tr>
+                <td>{{row [2]}}</td>
+                <td>{{row [6]}}</td>
+                <td>{{row [7]}}</td>
+                <td>{{row [8]}}</td>
+            </tr>
+            {%endfor%}
+            <tr class="bg-dark text-white">
+               <td><h5> Total: KSH {{total_sum}}</h5></td>
+            </tr>
+        </table>
+    </div>
     {%endif%}
 
 

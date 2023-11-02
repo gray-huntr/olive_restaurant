@@ -42,6 +42,12 @@
             </div>
 
             <div class="col-md-8">
+                <form action="/menu/search", method="post">
+                    <input type="text" name="menuitem" required placeholder="Input menu item name">
+                    <button class="btn btn-outline-danger">Search</button>
+                    <a href="/menu_upload" class="btn btn-outline-success">Reset</a>
+                </form>
+                <br>
                 <table class="table">
                     <tr>
                         <th>Menu item</th>

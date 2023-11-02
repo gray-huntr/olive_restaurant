@@ -20,6 +20,7 @@
                 <td>TOTAL</td>
                 <td>STATUS</td>
                 <td>LOCATION</td>
+                <td>ACTION</td>
             </tr>
             {%for row in rows%}
             <tr>
@@ -30,6 +31,9 @@
                 <td>{{row [8]}}</td>
                 <td>{{row [3]}}</td>
                 <td>{{row [10]}}</td>
+                <td>
+                    <a href="/view/{{row [1]}}" class="btn btn-dark">View</a>
+                </td>
             </tr>
             {%endfor%}
 
