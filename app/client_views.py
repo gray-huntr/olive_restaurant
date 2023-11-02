@@ -40,10 +40,10 @@ def reservations():
         cursor.execute("insert into reservations(in_attendance, name, number, date, time) values (%s,%s,%s,%s,%s)",
                        (in_attendance, name, number, date, time))
         conn.commit()
-        flash("Your reservation has been received,")
-        return  redirect("/reservations")
+        flash("Your reservation has been received,", "success")
+        return redirect("/reservations")
     else:
-        return render_template("clients/reservations")
+        return render_template("clients/reservations.html")
 
 
 
