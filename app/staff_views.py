@@ -1,8 +1,8 @@
 import pymysql
 
 from app import app, client_views
-from flask import render_template, request, flash, redirect, session, url_for
-from fpdf import FPDF
+from flask import render_template, request, flash, redirect, session, make_response
+from fpdf import FPDF, XPos, YPos
 
 # Route for staff login
 @app.route("/staff_login", methods=['POST', 'GET'])
@@ -280,7 +280,70 @@ def reservations_view():
             return render_template("/staff/service/reservations.html")
 
 
+@app.route("/receipt/<order_id>")
+def receipt(order_id):
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from inhouse_orders where order_id = %s ", order_id)
+    rows = cursor.fetchall()
 
+    class PDF(FPDF):
+        def header(self):
+            self.set_font('helvetica', 'B', 20)
+            # title
+            self.cell(0, 10, "Olive restaurant", align='C', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            self.cell(0, 0, border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    # create FPDF object
+    # Layout ('P','L')
+    # Unit ('mm', 'cm', 'in')
+    # format ('A3', 'A4' (default), 'A5', 'Letter', 'Legal', (100,150))
+    pdf = PDF('P', 'mm', 'letter')
+
+    # Add a page
+    pdf.add_page()
+
+    # specify font
+    # fonts ('times', 'courier', 'helvetica', 'symbol', 'zpfdingbats')
+    # 'B' (bold), 'U' (underline), 'I' (italics), '' (regular), combination (i.e., ('BU'))
+    pdf.set_font('times', '', 16)
+    # pdf.set_text_color(220,50,50)
+    # Add text
+    # w = width
+    # h = height
+    # txt = your text
+    # border (0 False; 1 True - add border around cell)
+    pdf.cell(120, 10, f'Order number: {order_id}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(40)
+    pdf.cell(50, 10, 'Name')
+    pdf.cell(20, 10, 'Cost')
+    pdf.cell(20, 10, 'Qtty')
+    pdf.cell(10, 10, 'Total', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    total_sum = 0
+    for row in rows:
+        pdf.cell(40)
+        pdf.cell(50, 10, f'{row[2]}')
+        pdf.cell(25, 10, f'{row[6]}')
+        pdf.cell(20, 10, f'{row[7]}')
+        pdf.cell(35, 10, f'{row[8]}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        total_sum = total_sum + row[8]
+        served_by = row[11][4:]
+
+    pdf.cell(40)
+    pdf.cell(10, 15, f'Total: {total_sum}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    pdf.cell(40)
+    pdf.cell(10, 0, f'Served by: {served_by}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    output = bytes(pdf.output(dest='S'))
+# enabling output to be downloadable
+    response = make_response(output)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
+    return response
 
 @app.route("/logout_staff")
 def logout_staff():
