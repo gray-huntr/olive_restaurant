@@ -118,7 +118,7 @@ def view(id):
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where status != 'Complete' and table_number = %s or order_id = %s",
+        cursor.execute("select * from inhouse_orders where (status != 'Closed' and table_number = %s) or order_id = %s",
                        (id, id))
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
@@ -197,7 +197,7 @@ def service():
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where status != 'Complete' group by table_number")
+        cursor.execute("select * from inhouse_orders where status != 'Closed' group by table_number")
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/service/service_portal.html", rows=rows)
@@ -219,12 +219,13 @@ def complete(id):
         if cursor.rowcount > 0:
             ordercode = client_views.receiptcode()
 
-            cursor.execute("update inhouse_orders set order_id = %s where table_number = %s and status != 'Complete'", (ordercode, id))
+            cursor.execute("update inhouse_orders set order_id = %s where table_number = %s and"
+                           " (status != 'Complete' or status != 'Closed')", (ordercode, id))
 
             cursor.execute("update inhouse_orders set status = %s, served_by = %s  where order_id = %s ",
                            ("Complete", session['Service_staff'], ordercode))
-            cursor.execute("update tables set status = 'open' where table_number = %s", id)
-            cursor.execute("update device set status = 'open' where uid = %s", session['duid'])
+            cursor.execute("update tables set status = 'open' where table_id = %s", id)
+            # cursor.execute("update device set status = 'open' where uid = %s", session['duid'])
             conn.commit()
             flash("Order has been completed successfully", "info")
             return redirect("/service")
@@ -236,6 +237,19 @@ def complete(id):
     else:
         flash("Please login first", "info")
         return redirect("/staff_login")
+
+@app.route("/close/<id>")
+def close(id):
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("update inhouse_orders set status = %s where table_number = %s and status = %s",
+                   ("Closed", id, "Complete"))
+    conn.commit()
+    flash("Order closed successfully", "info")
+    return redirect("/service")
+
 @app.route("/complete_orders")
 def complete_orders():
     if 'Service_staff' in session:
@@ -243,12 +257,12 @@ def complete_orders():
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where status = 'Complete' and served_by = %s group by order_id", session['Service_staff'])
+        cursor.execute("select * from inhouse_orders where status = 'Closed' and served_by = %s group by order_id", session['Service_staff'])
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("/staff/service/complete_orders.html", rows=rows)
         elif cursor.rowcount <= 0:
-            flash("You do not have any complete orders", "info")
+            flash("You do not have any Closed orders", "info")
             return render_template("/staff/service/complete_orders.html")
     else:
         flash("Please login first", "info")

@@ -155,14 +155,6 @@ def login():
         elif cursor.rowcount == 0:
             flash("User does not exist or incorrect password", "warning")
             return render_template('clients/login.html')
-
-        # elif cursor.rowcount == 0:
-        #     cursor.execute("select * from admins where email =%s and password=%s", (email, password))
-        #     if cursor.rowcount == 1:
-        #         return render_template('admin.html', msg="login successful")
-        #     elif cursor.rowcount == 0:
-        #         flash("User does not exist or incorrect password", "warning")
-        #         return render_template('clients/login.html')
     else:
         return render_template('clients/login.html')
 
