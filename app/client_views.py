@@ -572,14 +572,15 @@ def my_orders():
                        (session['email']))
     else:
         cursor.execute("select * from inhouse_orders where table_number = %s and device_uid = %s and status != %s",
-                       (session['table'], session['duid'], "complete"))
+                       (session['table'], session['duid'], "Closed"))
     if cursor.rowcount > 0:
         rows = cursor.fetchall()
         # get total
         total_sum = 0
         for row in rows:
             total_sum = total_sum + row[8]
-        return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum)
+            status = row[3]
+        return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum, status=status)
     else:
         flash("You have no pending orders", 'Warning')
         return render_template('clients/my_orders.html')

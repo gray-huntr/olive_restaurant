@@ -65,7 +65,7 @@
                 <td><h5>Total cost KES {{total_sum}}</h5></td>
             </tr>
         </table>
-
+        {%if status == 'Complete'%}
         <form action="/mpesa_payment" method="post">
             <fieldset class="form-group border p-3">
             <p>To pay with mpesa, please input your safaricom number below</p>
@@ -74,6 +74,8 @@
             <button type="submit" class="btn btn-success">Pay</button>
             </fieldset>
         </form>
+        {%endif%}
+
         {% endif %}
     </div>
 
