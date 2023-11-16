@@ -4,7 +4,6 @@ from app import app
 from flask import render_template, request, flash, redirect, session, url_for
 from uuid import uuid4
 import pydataman as pd
-from fpdf import FPDF, XPos, YPos
 # mpesa integration
 import requests
 import datetime
