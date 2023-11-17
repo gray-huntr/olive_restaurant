@@ -4,6 +4,7 @@ from app import app, client_views
 from flask import render_template, request, flash, redirect, session, make_response
 from fpdf import FPDF, XPos, YPos
 
+
 # Route for staff login
 @app.route("/staff_login", methods=['POST', 'GET'])
 def staff_login():
@@ -50,6 +51,7 @@ def staff_login():
     else:
         return render_template("staff/staff_login.html")
 
+
 # Route for delivery person
 @app.route("/deliveries")
 def deliveries():
@@ -58,8 +60,9 @@ def deliveries():
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select *, sum(total) from takeaway_orders where delivery_person = %s and status != %s group by order_id",
-                       (session['rider'], "Complete"))
+        cursor.execute(
+            "select *, sum(total) from takeaway_orders where delivery_person = %s and status != %s group by order_id",
+            (session['rider'], "Complete"))
         if cursor.rowcount == 0:
             flash("You have no pending deliveries", "info")
             return render_template("staff/rider/deliveries.html")
@@ -69,6 +72,7 @@ def deliveries():
     else:
         flash("Please login first", "info")
         return redirect("/staff_login")
+
 
 # Routes for the kitchen staff
 
@@ -111,6 +115,7 @@ def takeaway_orders():
         flash("Please login first", "info")
         return redirect("/staff_login")
 
+
 @app.route("/view/<id>")
 def view(id):
     if 'Kitchen_staff' or 'Service_staff' in session:
@@ -134,7 +139,7 @@ def view(id):
                 total_sum = 0
                 for row in rows:
                     session['order_id'] = row[1]
-                    total_sum = total_sum+ row[8]
+                    total_sum = total_sum + row[8]
                 return render_template("staff/kitchen/order_view.html", rows=rows, total_sum=total_sum)
             else:
                 flash("No orders by that ID, try again", "warning")
@@ -173,7 +178,7 @@ def done_prepping(id):
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where table_number = %s",id)
+        cursor.execute("select * from inhouse_orders where table_number = %s", id)
         if cursor.rowcount > 0:
             cursor.execute("update inhouse_orders set status = %s where table_number = %s ", ("On its way", id))
             conn.commit()
@@ -208,6 +213,7 @@ def service():
         flash("Please login first", "info")
         return redirect("/staff_login")
 
+
 @app.route("/complete/<id>")
 def complete(id):
     if 'Service_staff' or 'rider' in session:
@@ -215,7 +221,7 @@ def complete(id):
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where table_number = %s",id)
+        cursor.execute("select * from inhouse_orders where table_number = %s", id)
         if cursor.rowcount > 0:
             ordercode = client_views.receiptcode()
 
@@ -238,6 +244,7 @@ def complete(id):
         flash("Please login first", "info")
         return redirect("/staff_login")
 
+
 @app.route("/close/<id>")
 def close(id):
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
@@ -250,6 +257,7 @@ def close(id):
     flash("Order closed successfully", "info")
     return redirect("/service")
 
+
 @app.route("/complete_orders")
 def complete_orders():
     if 'Service_staff' in session:
@@ -257,7 +265,8 @@ def complete_orders():
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where status = 'Closed' and served_by = %s group by order_id", session['Service_staff'])
+        cursor.execute("select * from inhouse_orders where status = 'Closed' and served_by = %s group by order_id",
+                       session['Service_staff'])
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("/staff/service/complete_orders.html", rows=rows)
@@ -268,7 +277,8 @@ def complete_orders():
         flash("Please login first", "info")
         return redirect("/staff_login")
 
-@app.route("/reservations_view", methods = ['POST','GET'])
+
+@app.route("/reservations_view", methods=['POST', 'GET'])
 def reservations_view():
     conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
                            password=app.config["DB_PASSWORD"],
@@ -280,7 +290,7 @@ def reservations_view():
         cursor.execute("select * from reservations where number = %s and date >= current_date ", number)
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/service/reservations.html", rows = rows)
+            return render_template("staff/service/reservations.html", rows=rows)
         elif cursor.rowcount == 0:
             flash(f"There is no reservation under {number} for today or any day ahead", "warning")
             return redirect("/reservations_view")
@@ -288,7 +298,7 @@ def reservations_view():
         cursor.execute("select * from reservations where date >= current_date")
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
-            return render_template("staff/service/reservations.html", rows = rows)
+            return render_template("staff/service/reservations.html", rows=rows)
         elif cursor.rowcount == 0:
             flash("There are no reservations for today", "info")
             return render_template("/staff/service/reservations.html")
@@ -349,11 +359,12 @@ def receipt(order_id):
     pdf.cell(10, 0, f'Served by: {served_by}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.output(f"{order_id}.pdf")
     output = bytes(pdf.output(dest='S'))
-# enabling output to be downloadable
+    # enabling output to be downloadable
     response = make_response(output)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
     return response
+
 
 @app.route("/logout_staff")
 def logout_staff():
