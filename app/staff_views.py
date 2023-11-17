@@ -314,7 +314,7 @@ def receipt(order_id):
     # Layout ('P','L')
     # Unit ('mm', 'cm', 'in')
     # format ('A3', 'A4' (default), 'A5', 'Letter', 'Legal', (100,150))
-    pdf = PDF('P', 'mm', 'letter')
+    pdf = PDF('P', 'mm', (145, 200))
 
     # Add a page
     pdf.add_page()
@@ -330,34 +330,30 @@ def receipt(order_id):
     # txt = your text
     # border (0 False; 1 True - add border around cell)
     pdf.cell(120, 10, f'Order number: {order_id}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-    pdf.cell(40)
-    pdf.cell(50, 10, 'Name')
+    pdf.cell(55, 10, 'Name')
     pdf.cell(20, 10, 'Cost')
     pdf.cell(20, 10, 'Qtty')
     pdf.cell(10, 10, 'Total', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     total_sum = 0
     for row in rows:
-        pdf.cell(40)
-        pdf.cell(50, 10, f'{row[2]}')
+        pdf.cell(55, 10, f'{row[2]}')
         pdf.cell(25, 10, f'{row[6]}')
         pdf.cell(20, 10, f'{row[7]}')
         pdf.cell(35, 10, f'{row[8]}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         total_sum = total_sum + row[8]
         served_by = row[11][4:]
 
-    pdf.cell(40)
     pdf.cell(10, 15, f'Total: {total_sum}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-    pdf.cell(40)
     pdf.cell(10, 0, f'Served by: {served_by}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-
-    output = bytes(pdf.output(dest='S'))
-# enabling output to be downloadable
-    response = make_response(output)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
-    return response
+    pdf.output(f"{order_id}.pdf")
+#     output = bytes(pdf.output(dest='S'))
+# # enabling output to be downloadable
+#     response = make_response(output)
+#     response.headers['Content-Type'] = 'application/pdf'
+#     response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
+#     return response
 
 @app.route("/logout_staff")
 def logout_staff():
