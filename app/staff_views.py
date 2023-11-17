@@ -348,12 +348,12 @@ def receipt(order_id):
 
     pdf.cell(10, 0, f'Served by: {served_by}', new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.output(f"{order_id}.pdf")
-#     output = bytes(pdf.output(dest='S'))
-# # enabling output to be downloadable
-#     response = make_response(output)
-#     response.headers['Content-Type'] = 'application/pdf'
-#     response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
-#     return response
+    output = bytes(pdf.output(dest='S'))
+# enabling output to be downloadable
+    response = make_response(output)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename={order_id}.pdf'
+    return response
 
 @app.route("/logout_staff")
 def logout_staff():
