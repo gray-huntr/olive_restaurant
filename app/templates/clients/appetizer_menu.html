@@ -23,7 +23,8 @@
                     <form action="/addtocart/Food" method="post">
                         <label class="text-white"> Input quantity below</label>
                         <input type="text" name="quantity" required placeholder="Input quantity" value="1"> <br><br>
-                        <input type="text" name="id" value="{{row [0]}}" hidden>
+                        <input type="hidden" name="id" value="{{row [0]}}">
+                        <input type="hidden" name="type" value="appetizer">
                         <button type="submit" class="btn btn-outline-danger">Add to cart</button>
                     </form>
                 </div>

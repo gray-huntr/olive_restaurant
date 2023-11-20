@@ -218,6 +218,7 @@ def addtocart(category):
     if category == "Food":
         id = request.form['id']
         qtty = int(request.form['quantity'])
+        type = request.form['type']
         # create a unique code from the random string generator route
         code = ordercode()
         # validate the received values
@@ -264,9 +265,12 @@ def addtocart(category):
             # add total quantity and total price to a session
             session['all_total_quantity'] = all_total_quantity
             session['all_total_price'] = all_total_price
-
-            flash('Order added to cart successfully', 'success')
-            return redirect(url_for('.food_menu'))
+            if type == 'appetizer':
+                flash('Order added to cart successfully', 'success')
+                return redirect("/appetizer_menu")
+            else:
+                flash('Order added to cart successfully', 'success')
+                return redirect(url_for('.food_menu'))
         else:
             return 'Error while adding item to cart'
     elif category == "Drink":
