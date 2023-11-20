@@ -583,6 +583,22 @@ def my_orders():
         flash("You have no pending orders, please order something first", 'warning')
         return redirect("/food_menu")
 
+@app.route("/myorder_view/<id>")
+def myorder_view(id):
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    cursor.execute("select * from takeaway_orders where order_id = %s", id)
+    if cursor.rowcount > 0:
+        rows = cursor.fetchall()
+        total_sum = 0
+        for row in rows:
+            total_sum = total_sum + row[8]
+        return render_template("clients/order_view.html", rows=rows, total_sum=total_sum)
+    else:
+        flash("No orders by that ID, try again", "warning")
+        return redirect("/my_orders")
 @app.route('/mpesa_payment', methods = ['POST','GET'])
 def mpesa_payment():
     # conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
