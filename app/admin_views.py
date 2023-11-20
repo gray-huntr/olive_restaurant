@@ -138,6 +138,26 @@ def employee_records():
         rows = cursor.fetchall()
         return render_template("admin/employee_records.html", rows=rows)
 
+@app.route("/employee_search", methods=['POST','GET'])
+def employee_search():
+    conn = pymysql.connect(host=app.config["DB_HOST"], user=app.config["DB_USERNAME"],
+                           password=app.config["DB_PASSWORD"],
+                           database=app.config["DB_NAME"])
+    cursor = conn.cursor()
+    if request.method == 'POST':
+        search_term = request.form['search_term']
+
+        cursor.execute("select * from employees where first_name like %s or last_name like %s or employee_id = %s",
+                       ('%' + search_term + '%', '%' + search_term + '%', search_term))
+        if cursor.rowcount > 0:
+            rows = cursor.fetchall()
+            return render_template("admin/employee_records.html", rows=rows)
+        elif cursor.rowcount == 0:
+            flash("Record does not exist", "danger")
+            return redirect("/employee_records")
+    else:
+        return redirect("/employee_records")
+
 
 @app.route("/menu_upload", methods=['POST', 'GET'])
 def menu_upload():
