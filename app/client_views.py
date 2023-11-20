@@ -566,7 +566,7 @@ def my_orders():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     if 'email' in session:
-        cursor.execute("select * from takeaway_orders where email = %s group by order_id",
+        cursor.execute("select *, sum(total) from takeaway_orders where email = %s group by order_id",
                        (session['email']))
     else:
         cursor.execute("select * from inhouse_orders where table_number = %s and device_uid = %s and status != %s",
