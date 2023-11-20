@@ -10,11 +10,10 @@
 <div class="container">
     {%include 'flash_message.html'%}
     <form action="/adm_inhouse_orders" method="post">
-        <input type="text" name="id" required placeholder="Input order id">
+        <input type="text" name="id" required placeholder="Input order id"  class="form-control col-md-4"><br>
         <button class="btn btn-outline-danger">Search</button>
         <a href="/adm_inhouse_orders" class="btn btn-outline-success">Reset</a>
     </form>
-    <br>
     <table class="table table-striped">
         <tr class="bg-dark text-white">
             <th>ORDER ID</th>
