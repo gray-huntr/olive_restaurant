@@ -286,14 +286,14 @@ def reservations_view():
                            database=app.config["DB_NAME"])
     cursor = conn.cursor()
     if request.method == 'POST':
-        number = request.form['number']
+        name = request.form['name']
 
-        cursor.execute("select * from reservations where number = %s and date >= current_date ", number)
+        cursor.execute("select * from reservations where name like %s and date >= current_date ", '%'+name+'%')
         if cursor.rowcount > 0:
             rows = cursor.fetchall()
             return render_template("staff/service/reservations.html", rows=rows)
         elif cursor.rowcount == 0:
-            flash(f"There is no reservation under {number} for today or any day ahead", "warning")
+            flash(f"There is no reservation under {name} for today or any day ahead", "warning")
             return redirect("/reservations_view")
     else:
         cursor.execute("select * from reservations where date >= current_date")

@@ -10,7 +10,7 @@
 <div class="container">
     {%include 'flash_message.html'%}
     <form action="/reservations_view" method="post">
-        <input type="number" name="number" required placeholder="Search phone number">
+        <input type="text" name="name" required placeholder="Search name">
         <button class="btn btn-outline-danger ml-2">Search</button>
         <a href="/reservations_view" class="btn btn-outline-success">Reset</a>
     </form>
