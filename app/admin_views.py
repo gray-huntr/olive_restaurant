@@ -83,7 +83,9 @@ def admin_signup():
 def new_employee():
     if 'admin' in session:
         if request.method == 'POST':
-            employee_id = request.form['employee_id']
+            with open("data/employee_id", "r") as file:
+                old_id = int(file.read())
+                employee_id = "W00" + str(old_id)
             fname = request.form['fname']
             lname = request.form['lname']
             phone = request.form['phone']
@@ -107,6 +109,10 @@ def new_employee():
                     (employee_id, fname, lname, phone, email, category))
                 # save records
                 conn.commit()
+                old_id += 1
+                # save it to file
+                with open("data/employee_id", "w") as file:
+                    file.write(str(old_id))
                 flash("Employee signed up successfully", "success")
                 return render_template('admin/new_employee.html', )
             else:
@@ -369,6 +375,3 @@ def appliances():
 def logout_admin():
     session.pop('admin', None)
     return redirect('/admin_login')
-
-
-
