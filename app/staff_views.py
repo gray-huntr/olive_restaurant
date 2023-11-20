@@ -178,9 +178,10 @@ def done_prepping(id):
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where table_number = %s", id)
+        cursor.execute("select * from inhouse_orders where table_number = %s and status = 'In preparation'", id)
         if cursor.rowcount > 0:
-            cursor.execute("update inhouse_orders set status = %s where table_number = %s ", ("On its way", id))
+            cursor.execute("update inhouse_orders set status = %s where table_number = %s and status = 'In preparation' ",
+                           ("On its way", id))
             conn.commit()
             flash("Status has been changed successfully", "info")
             return redirect(f"/view/{id}")
@@ -221,12 +222,12 @@ def complete(id):
                                password=app.config["DB_PASSWORD"],
                                database=app.config["DB_NAME"])
         cursor = conn.cursor()
-        cursor.execute("select * from inhouse_orders where table_number = %s", id)
+        cursor.execute("select * from inhouse_orders where table_number = %s and status = 'On its way'", id)
         if cursor.rowcount > 0:
             ordercode = client_views.receiptcode()
 
             cursor.execute("update inhouse_orders set order_id = %s where table_number = %s and"
-                           " (status != 'Complete' or status != 'Closed')", (ordercode, id))
+                           " (status = 'On its way')", (ordercode, id))
 
             cursor.execute("update inhouse_orders set status = %s, served_by = %s  where order_id = %s ",
                            ("Complete", session['Service_staff'], ordercode))

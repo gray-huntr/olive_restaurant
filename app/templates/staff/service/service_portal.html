@@ -26,7 +26,8 @@
                 <a href="/view/{{row [5]}}"><button class="btn btn-info">View order</button></a>
                 {%if row[3] == "Complete"%}
                 <a href="/close/{{row [5]}}"><button class="btn btn-success">Close order</button></a>
-                {%else%}
+                <a href="/receipt/{{row [1]}}"><button class="btn btn-primary">Print receipt</button></a>
+                {%elif row[3] == "On its way"%}
                 <a href="/complete/{{row [5]}}"><button class="btn btn-success">Complete order</button></a>
                 {%endif%}
             </td>

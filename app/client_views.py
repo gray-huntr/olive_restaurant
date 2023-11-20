@@ -505,7 +505,8 @@ def order():
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+            flash("Your orders have been placed successfully, Please wait for them to be prepared", "info")
+            return redirect("/my_orders")
         elif 'email' in session:
             all_total_price = 0
             all_total_quantity = 0
@@ -549,7 +550,8 @@ def order():
             session.pop('cart_item', None)
             session.pop('all_total_quantity', None)
             session.pop('all_total_price', None)
-            return render_template('clients/cart.html', msg='Your order(s) have been placed successfully')
+            flash("Your orders have been placed successfully, Please wait for them to be prepared", "info")
+            return redirect("/my_orders")
 
 
 # else:
@@ -578,8 +580,8 @@ def my_orders():
             status = row[3]
         return render_template('clients/my_orders.html', rows=rows, total_sum=total_sum, status=status)
     else:
-        flash("You have no pending orders", 'Warning')
-        return render_template('clients/my_orders.html')
+        flash("You have no pending orders, please order something first", 'warning')
+        return redirect("/food_menu")
 
 @app.route('/mpesa_payment', methods = ['POST','GET'])
 def mpesa_payment():
@@ -588,7 +590,7 @@ def mpesa_payment():
     #                        database=app.config["DB_NAME"])
     # cursor = conn.cursor()
     # cursor.execute("SELECT * FROM clients where username = %s", (session['username']))
-    # # AFter executing the query above, get all rows
+    # # After executing the query above, get all rows
     # number = cursor.fetchall()
     # session['request'] = 'accept'
 
