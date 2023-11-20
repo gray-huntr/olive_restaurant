@@ -10,6 +10,13 @@
 
 <div class="container">
     {% include 'flash_message.html'%}
+    <form action="/employee_search" method="post">
+        <input type="text" name="search_term" required placeholder="Input employee first name, last name or ID"
+               class="form-control col-md-4">
+        <br>
+        <button class="btn btn-outline-danger">Search</button>
+        <a href="/employee_records" class="btn btn-outline-success">Reset</a>
+    </form>
     <table class="table table-striped table-bordered">
         <tr class="text-white bg-dark">
             <th>Employee ID</th>
