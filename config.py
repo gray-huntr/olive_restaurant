@@ -11,4 +11,4 @@ class Config(object):
     # Details of file uploads
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
-    UPLOAD_FOLDER = 'C:/Users/DELL/PycharmProjects/GTR/app/static/images'
+    UPLOAD_FOLDER = 'app/static/images/'
