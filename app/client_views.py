@@ -1,13 +1,16 @@
+import os
+
 import pymysql
 
 from app import app
-from flask import render_template, request, flash, redirect, session, url_for
+from flask import render_template, request, flash, redirect, session, url_for, jsonify
 from uuid import uuid4
 import pydataman as pd
 # mpesa integration
 import requests
 import datetime
 import base64
+import subprocess
 from requests.auth import HTTPBasicAuth
 
 
@@ -645,7 +648,7 @@ def mpesa_payment():
             "PartyA": phone, #phone number that is paying
             "PartyB": "174379", #paybill number
             "PhoneNumber": phone, #phone number that is paying
-            "CallBackURL": "https://0b97-196-202-162-46.ngrok.io/callback" ,
+            "CallBackURL": "https://0760-41-206-51-214.ngrok-free.app/mpesa_callback",
             "AccountReference": "Olive restaurant",
             "TransactionDesc": "account"
         }
@@ -671,13 +674,63 @@ def mpesa_payment():
     else:
         return redirect('/my_orders')
 
-# @app.route("/callback")
-# def callback():
-#     subprocess.call("php app/call.php")
-    # proc = subprocess.Popen("php app/call.php", shell=True, stdout=subprocess.PIPE)
-    # script_response = proc.stdout.read()
-    # print(script_response)
 
+import json
+@app.route("/mpesa_callback", methods=['POST', 'GET'])
+def mpesa_callback():
+    callback_data = request.json
+    # Print the callback data to the terminal
+    print(callback_data)
+
+    # Return a response to the M-Pesa server
+    response_data = {'status': 'success'}
+    return jsonify(response_data)
+
+    # print('call working')
+    # try:
+    #     print('try working')
+    #     # Set the response content type to application/json
+    #     resp = {"ResultCode": 0, "ResultDesc": "Confirmation received successfully"}
+    #
+    #     # Read incoming request
+    #     callback_data = request.get_json()
+    #
+    #     result_code = callback_data.get("Body", {}).get("stkCallback", {}).get("ResultCode")
+    #     print(callback_data)
+    #     if result_code == 0:
+    #         callback_metadata = callback_data.get("Body", {}).get("stkCallback", {}).get("CallbackMetadata", {}).get(
+    #             "Item")
+    #
+    #         amount = next((item["Value"] for item in callback_metadata if item["Name"] == "Amount"), None)
+    #         mpesa_receipt_number = next(
+    #             (item["Value"] for item in callback_metadata if item["Name"] == "MpesaReceiptNumber"), None)
+    #         phone_number = next((item["Value"] for item in callback_metadata if item["Name"] == "PhoneNumber"), None)
+    #
+    #         if all([amount, mpesa_receipt_number, phone_number]):
+    #             # Connect to MySQL database
+    #             conn = pymysql.connect(host="localhost", user="root", password="", database="olive_garden")
+    #             cursor = conn.cursor()
+    #
+    #             # Insert transaction into database
+    #             sql = "INSERT INTO transactions (mpesa_code, phone_number, amount) VALUES (%s, %s, %s)"
+    #             cursor.execute(sql, (mpesa_receipt_number, phone_number, amount))
+    #             conn.commit()
+    #
+    #             cursor.close()
+    #             conn.close()
+    #
+    #             return "New record created successfully"
+    #         else:
+    #             return "Error: Missing data in callback"
+    #
+    #     else:
+    #         # Reject
+    #         return "Error: M-Pesa callback returned non-zero result code"
+    #
+    # except Exception as ex:
+    #     # Log exception
+    #     print("Error:", ex)
+    #     return "Error: An unexpected error occurred"
 
 # Route to log out
 @app.route("/logout")

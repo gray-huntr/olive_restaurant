@@ -56,7 +56,6 @@
                 <td><h5>Total cost KES {{total_sum}}</h5></td>
             </tr>
         </table>
-        {%if status == 'Complete'%}
         <form action="/mpesa_payment" method="post" class="row">
             <div class="col-md-6">
                 <fieldset class="form-group border p-3">
@@ -78,7 +77,6 @@
                 </ol>
             </div>
         </form>
-        {%endif%}
 
         {% endif %}
     </div>
